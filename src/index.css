@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens (ver DESIGN.md §3). Tailwind v4 los expone como
+   utilidades: bg-brand, text-gray-800, bg-success-100, shadow-cta…
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Marca — una sola escala de morado */
+  --color-brand-50: #F3F1FF;   /* fondo tintado: body, bloque "intención guardada", hover secundario */
+  --color-brand-100: #EDE9FE;  /* opción seleccionada, pills, tracks, glow, fondo de icono */
+  --color-brand-200: #D8CDFB;  /* blob ilustración, borde secundario, botón enviar */
+  --color-brand-300: #C9BFF5;  /* hover botón enviar */
+  --color-brand: #8774E1;      /* CTA, progreso, selección, tabs, links */
+  --color-brand-600: #7864D8;  /* hover del CTA, fondo avatar */
+  --color-brand-900: #342475;  /* títulos de énfasis sobre blanco */
+
+  /* Grises — sobrescribe la escala de Tailwind para toda la app */
+  --color-gray-50: #F8F9FA;    /* fondo Home, fondo de notas */
+  --color-gray-100: #F3F4F6;   /* bordes suaves, divisores, input gris, track del gauge */
+  --color-gray-200: #E5E5EA;   /* bordes de tarjeta, track de progreso, botón deshabilitado, badge pendiente */
+  --color-gray-300: #D1D1D6;
+  --color-gray-400: #9B9B9B;   /* logo, placeholders, notas al pie, texto deshabilitado, borde de radio */
+  --color-gray-500: #7B7B7B;   /* texto legal, footer */
+  --color-gray-600: #6B6B6B;   /* iconos de cabecera, texto pendiente */
+  --color-gray-700: #555555;   /* párrafos descriptivos */
+  --color-gray-800: #4A4A4A;   /* etiquetas de pregunta, texto de opciones */
+  --color-gray-900: #2D2D2D;   /* texto base y títulos */
+
+  /* Semánticos — 100 fondo suave, 500 sólido, 700 texto sobre fondo suave */
+  --color-success-100: #EAF8EE;
+  --color-success-500: #10B981;
+  --color-success-700: #2D9F53;
+  --color-warning-100: #FEF6E1;
+  --color-warning-200: #F6E7B8;
+  --color-warning-500: #F5A623;
+  --color-warning-600: #D48806;
+  --color-warning-700: #9A7D2C;
+  --color-warning-800: #AD6800;
+  --color-danger-100: #FEECEC;
+  --color-danger-500: #FF5A5F;
+  --color-danger-700: #E04F4F;
+
+  /* Acentos (únicos colores fuera de las escalas anteriores) */
+  --color-accent-teal: #48C6B6;    /* punto del gráfico de evolución */
+  --color-accent-yellow: #F8EEA6;  /* mancha decorativa de la ilustración */
+
+  /* Sombras */
+  --shadow-cta: 0 4px 14px rgba(135, 116, 225, 0.35);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+@layer base {
+  body {
+    background: linear-gradient(180deg, var(--color-brand-50) 0%, var(--color-gray-50) 100%);
+    min-height: 100vh;
+    color: var(--color-gray-900);
+  }
+}
+
+/* Anillo de foco visible sólo para navegación por teclado */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 35%, transparent);
+}
+
+/* Custom radio button */
+.custom-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  margin: 0;
+  font: inherit;
+  color: currentColor;
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+  border: 1.8px solid var(--color-gray-400);
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Enforce minimum 56px height on all radio option containers and inputs */
+label:has(.custom-radio),
+div:has(> .custom-radio),
+div:has(> label > .custom-radio) {
+  min-height: 56px;
+  box-sizing: border-box;
+}
+
+.custom-radio:focus-visible,
+.custom-checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 35%, transparent);
+}
+
+.custom-radio::before {
+  content: "";
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  background-color: var(--color-brand);
+}
+
+.custom-radio:checked {
+  border-color: var(--color-brand);
+}
+
+.custom-radio:checked::before {
+  transform: scale(1);
+}
+
+/* Custom checkbox */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  margin: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1.8px solid var(--color-gray-400);
+  border-radius: 0.375rem;
+  display: grid;
+  place-content: center;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+  outline: none;
+}
+
+.custom-checkbox::before {
+  content: "";
+  width: 0.7rem;
+  height: 0.4rem;
+  border-left: 2.2px solid white;
+  border-bottom: 2.2px solid white;
+  transform: rotate(-45deg) scale(0);
+  margin-top: -2px;
+  transition: 120ms transform ease-in-out;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.custom-checkbox:checked::before {
+  transform: rotate(-45deg) scale(1);
+}
+
+/* Hide native scrollbars so custom persistent scrollbar renders seamlessly */
+.custom-hide-native-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-hide-native-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Legal text scrollbar fallback */
+.custom-legal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand) var(--color-brand-100);
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.custom-legal-scroll::-webkit-scrollbar {
+  width: 6px;
+  display: block;
+}
+
+.custom-legal-scroll::-webkit-scrollbar-track {
+  background: var(--color-brand-100);
+  border-radius: 9999px;
+  margin: 8px 4px;
+}
+
+.custom-legal-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-brand);
+  border-radius: 9999px;
+  border: 1px solid var(--color-brand-100);
+}
+
+.custom-legal-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
+}
+
+/* Date input clean appearance */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}

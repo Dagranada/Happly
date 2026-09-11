@@ -1,0 +1,8 @@
+{
+  "name": "Happly - Conozcamonos",
+  "description": "Cuestionario interactivo de bienestar y perfil personal Happly con diseño fiel y navegación paso a paso.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -237,16 +237,10 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen text-gray-800 antialiased flex flex-col justify-between selection:bg-brand/20 selection:text-brand transition-colors duration-300 relative overflow-x-hidden ${
-        isResultsScreen ? 'bg-white' : ''
+      className={`min-h-screen w-full text-gray-800 antialiased flex flex-col justify-between selection:bg-brand/20 selection:text-brand transition-colors duration-300 relative overflow-x-hidden ${
+        isResultsScreen ? 'bg-white' : 'bg-form'
       }`}
     >
-      {/* Brillo lavanda ambiental (desktop) */}
-      <div
-        className="hidden md:block absolute top-0 right-0 w-[40vw] h-[70vh] bg-gradient-to-bl from-brand-100/70 via-brand-50/40 to-transparent pointer-events-none rounded-full blur-3xl"
-        aria-hidden="true"
-      />
-
       <main className="flex-grow px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 md:pt-8 pb-28 max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto w-full flex flex-col justify-start relative z-10">
         <Header currentStep={currentStep} userName={formData.userName} />
 

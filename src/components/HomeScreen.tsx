@@ -447,7 +447,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
                         value={intentionText}
                         onChange={(e) => setIntentionText(e.target.value)}
                         placeholder="Escribe aquí"
-                        className="flex-grow bg-gray-100 text-gray-800 placeholder-gray-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-brand/30 transition-all"
+                        className="flex-grow bg-gray-50 text-gray-800 placeholder-gray-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-brand/30 transition-all"
                       />
                       <button
                         type="submit"

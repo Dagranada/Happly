@@ -22,11 +22,11 @@ Documento de referencia del diseño de la app **Happly – Conozcámonos**: toke
 
 ## 2. Principios de diseño
 
-1. **Mobile‑first, con reflow en desktop.** Home vive en `max-w-md`/`max-w-lg` hasta `lg`; desde 1024 px pasa a `lg:max-w-5xl xl:max-w-6xl` con dos columnas: tarjeta de perfil fija a la izquierda (`360px`, `sticky top-6`) y tabs + contenido a la derecha; en Inicio las tarjetas de actividad e intención van lado a lado y felicidad/evolución ocupan las dos columnas; Logros pasa a 5 columnas de insignias. El cuestionario ensancha a `md:max-w-2xl → lg:3xl → xl:4xl` y desde `md` reordena: reglas en 2 tarjetas en fila con Sí/No a la izquierda y CTA a la derecha; intro de Fase 2 con ilustración a la izquierda y texto a la derecha; resultados con las 3 dimensiones en fila. Un brillo lavanda en la esquina superior derecha (`hidden md:block`) acompaña el desktop.
+1. **Mobile‑first, con reflow en desktop.** Home vive en `max-w-md`/`max-w-lg` hasta `lg`; desde 1024 px pasa a `lg:max-w-5xl xl:max-w-6xl` con dos columnas: tarjeta de perfil fija a la izquierda (`360px`, `sticky top-6`) y tabs + contenido a la derecha; en Inicio las tarjetas de actividad e intención van lado a lado y felicidad/evolución ocupan las dos columnas; Logros pasa a 5 columnas de insignias. El cuestionario ensancha a `md:max-w-2xl → lg:3xl → xl:4xl` y desde `md` reordena: reglas en 2 tarjetas en fila con Sí/No a la izquierda y CTA a la derecha; intro de Fase 2 con ilustración a la izquierda y texto a la derecha; resultados con las 3 dimensiones en fila. El fondo del cuestionario es `.bg-form` (halos celeste/lavanda sobre base neutra con degradado a blanco); resultados va sobre blanco.
 2. **Suave y cálido, no clínico.** Fondo lavanda muy claro con degradado, bordes redondeados grandes (16–28 px), sombras difusas de baja opacidad, sin líneas duras.
 3. **Un solo color de marca.** El morado `#8774E1` hace todo el trabajo de acento: botones primarios, progreso, selección, links, tabs activas. Los demás colores son semánticos (éxito, error, pendiente) o neutros.
 4. **Tarjetas blancas sobre fondo tintado.** Las superficies se separan del fondo por contraste blanco/lavanda, no por bordes marcados.
-5. **Sin bordes en formularios.** Inputs y opciones de radio son bloques blancos sin borde; el estado seleccionado se comunica con relleno lavanda + texto morado, y el foco con un anillo morado translúcido.
+5. **Sin bordes en formularios.** Inputs y opciones de radio son bloques `gray-50` sin borde (destacan sobre el fondo blanco); el estado seleccionado se comunica con relleno lavanda + texto morado, y el foco con un anillo morado translúcido.
 6. **Targets táctiles ≥ 56 px.** Toda opción de radio/checkbox y todo input tiene `min-h-[56px]` (reforzado globalmente en CSS con `:has()`).
 7. **Feedback inmediato y ligero.** Micro‑animaciones cortas (200–500 ms), toasts que desaparecen solos, auto‑avance en la Fase 2.
 8. **Español informal y cercano (tuteo).** Tono de "compañero", emojis en los textos de resultados.
@@ -55,8 +55,8 @@ Regla: **una escala por familia**, definida en `@theme` ([src/index.css](src/ind
 
 | Token | Hex | Uso |
 |---|---|---|
-| `gray-50` | `#F8F9FA` | Fondo de Inicio, fin del degradado del body, fondo de notas |
-| `gray-100` | `#F3F4F6` | Bordes suaves, divisores, input de intención, track del gauge |
+| `gray-50` | `#F8F9FA` | Fondo de Inicio, fondo de inputs/textarea/opciones sin seleccionar, fondo de notas |
+| `gray-100` | `#F3F4F6` | Hover de opciones, bordes suaves, divisores, track del gauge |
 | `gray-200` | `#E5E5EA` | Bordes de tarjeta, track de progreso, botón deshabilitado, badge "Pendiente", borde del knob |
 | `gray-300` | `#D1D1D6` | Reservado |
 | `gray-400` | `#9B9B9B` | Logo, placeholders, notas al pie, texto deshabilitado, borde de radio/checkbox, medalla de plata |
@@ -86,6 +86,8 @@ Cada familia tiene tres pasos: **100** fondo suave, **500** sólido, **700** tex
 |---|---|---|
 | `accent-teal` | `#48C6B6` | Puntos de nivel "Alto" en el gráfico de evolución |
 | `accent-yellow` | `#F8EEA6` | Mancha decorativa detrás del retrato (intro Fase 2) |
+| `accent-sky` | `#BDE5F8` | Halo celeste del fondo de formularios (`.bg-form`) |
+| `surface-form` | `#F7F8FC` | Reservado (la base de `.bg-form` pasó a blanco) |
 
 #### Gauge de resultados
 
@@ -167,6 +169,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 |---|---|
 | `body` | Degradado `brand-50 → gray-50`, `min-height: 100vh`, color `gray-900` |
 | `@theme { … }` | Tokens: escalas `brand`, `gray` (sobrescribe Tailwind), `success`/`warning`/`danger`, acentos, fuente y sombras (§3) |
+| `.bg-form` | Fondo de las pantallas de formulario (cuestionario y actividades): base **blanca**; sólo tres halos elípticos pegados al borde superior (`accent-sky` 80 % + `brand-200` 50 % en la esquina derecha, `brand-200` 30 % muy leve en la izquierda). El resto de la pantalla es blanco puro |
 | `.focus-ring` | Anillo de foco morado sólo en `:focus-visible` (teclado) |
 | `.custom-radio` | Radio nativo reemplazado: círculo 20 px, borde `#9CA3AF` 1.8 px, punto interior morado 10.4 px que escala de 0→1 en 120 ms |
 | `.custom-checkbox` | Checkbox 21.6 px, radio 6 px, fondo morado al marcar con check blanco en CSS |
@@ -226,14 +229,14 @@ hover:bg-brand-50/50 active:scale-[0.98]
 ```
 min-h-[56px] rounded-2xl px-4 py-3.5 flex items-center gap-3.5 cursor-pointer transition-all
 seleccionado: bg-brand-100 + texto text-brand font-medium
-no seleccionado: bg-white hover:bg-gray-50/80 + texto gris
+no seleccionado: bg-gray-50 hover:bg-gray-100 + texto gris
 ```
 Contiene `<input class="custom-radio">` + label. Variantes: Sí/No en fila (`flex gap-2.5 max-w-xs`), género en `grid-cols-3`, opciones largas apiladas (`space-y-3.5`).
 
 #### Input de texto / número / fecha
 ```
-w-full min-h-[56px] bg-white border-none rounded-2xl px-5 text-[15px] sm:text-[16px] text-gray-700
-placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30
+w-full min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 text-[15px] sm:text-[16px] text-gray-700
+placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30
 ```
 El de fecha lleva un botón absoluto con `<Calendar>` que dispara `showPicker()`.
 
@@ -272,7 +275,7 @@ Altura única `h-2` (8 px) en todas las barras. Track `bg-gray-200 rounded-full`
 | `StepPhase2Intro` | [src/components/StepPhase2Intro.tsx](src/components/StepPhase2Intro.tsx) | Ilustración + instrucciones para la Fase 2. | Desde `md`: ilustración a la izquierda (`shrink-0`) y título + bullets a la derecha; nota y "Empezar" debajo a todo el ancho. Composición: blob lavanda orgánico (`rounded-[48%_52%_45%_55%/…]`) + acento amarillo rotado + retrato circular recortado. Título en color brand. Bullets con puntos `w-1.5 h-1.5 bg-gray-500`. |
 | `StepPhase2Question` | [src/components/StepPhase2Question.tsx](src/components/StepPhase2Question.tsx) | Pregunta genérica de Fase 2 (10 bloques de 4 afirmaciones). | **Auto‑avance** 520 ms tras seleccionar, con animación de "parpadeo" (`scale` y `backgroundColor` en keyframes). Botón submit deshabilitado hasta responder. |
 | `ResultsSummary` | [src/components/ResultsSummary.tsx](src/components/ResultsSummary.tsx) | Paso 15: gauge SVG, texto general expandible, 3 tarjetas de sub‑dimensión, modal de confirmación. | Gauge: arco de 260° (140°→400°), r=85, stroke 8, gradiente `danger-500 → warning-500 → success-500`, knob blanco con `feDropShadow`. Score y knob animados con `requestAnimationFrame` + easeOutCubic (1.3 s). "Leer más/menos" con altura animada + crossfade (`ExpandableText`) y chevron rotando 180°. |
-| `ActivityStep` | [src/components/ActivityStep.tsx](src/components/ActivityStep.tsx) | Pasos 16–19: una actividad del programa por pantalla (datos en [src/data/activities.ts](src/data/activities.ts)). Guarda `{ text, mood }` en `formData.activityAnswers`. | "Actividad N de 4" (16–17 px semibold) + fecha límite (13 px `gray-500`); título 26→32 px bold en `brand`; descripción `gray-700`; `textarea` blanca sin borde (`min-h-[112px]` en móvil, `56px` en desktop); escala de ánimo con 5 caras Lucide (`Frown`, `Annoyed`, `Meh`, `Smile`, `Laugh`, 36 px) con etiquetas "Muy mal" / "Muy bien" en los extremos, seleccionada en `brand`; botón `Enviar` (con icono `Send`) deshabilitado hasta tener texto y ánimo. Header solo con logo. La última actividad lleva a Inicio. |
+| `ActivityStep` | [src/components/ActivityStep.tsx](src/components/ActivityStep.tsx) | Pasos 16–19: una actividad del programa por pantalla (datos en [src/data/activities.ts](src/data/activities.ts)). Guarda `{ text, mood }` en `formData.activityAnswers`. | "Actividad N de 4" (16–17 px semibold) + fecha límite (13 px `gray-500`); título 26→32 px bold en `brand`; descripción `gray-700`; `textarea` `gray-50` sin borde (blanca al enfocar) (`min-h-[112px]` en móvil, `56px` en desktop); escala de ánimo con 5 caras Lucide (`Frown`, `Annoyed`, `Meh`, `Smile`, `Laugh`, 36 px) con etiquetas "Muy mal" / "Muy bien" en los extremos, seleccionada en `brand`; botón `Enviar` (con icono `Send`) deshabilitado hasta tener texto y ánimo. Header solo con logo. La última actividad lleva a Inicio. |
 | `HappinessChart` | [src/components/HappinessChart.tsx](src/components/HappinessChart.tsx) | Gráfico SVG mes a mes (30 May → 30 Ago): eje Y fijo (Alto/Medio/Bajo/Muy bajo) y área desplazable horizontalmente con `snap-x` por mes (cada mes ocupa 140 px, así en móvil se navega con swipe). Recibe `points` y `seriesKey` (reanima al cambiar de filtro). | Guías punteadas `gray-200`; línea `brand` 2 px dibujada con `pathLength`; puntos r=7 con halo r=14 al 18 %, coloreados por nivel (`accent-teal` Alto, `warning-500` Medio, `danger-500` Bajo) y entrada en cascada (spring, 120 ms entre puntos); `<title>` con valor y nivel. |
 | `HomeScreen` | [src/components/HomeScreen.tsx](src/components/HomeScreen.tsx) | Dashboard post‑cuestionario con tabs. | Ver §6.1. |
 | `ProgramTab` | [src/components/ProgramTab.tsx](src/components/ProgramTab.tsx) | Acordeón de 3 niveles (programa → semana → actividad) generado desde `PROGRAMS` (datos), con `Collapsible` y `ActivityRow` internos. | `Card flush`. Chevrons stroke 2.5. Items con icono de estado (`Clock` gris, `CheckCircle2` verde, `XCircle` rojo). Altura animada con `motion` (`height: 0 → auto`, 200 ms). |
@@ -360,8 +363,8 @@ Fondo blanco puro (rompe el degradado para que el gauge destaque), header centra
 |---|---|---|---|---|
 | Botón primario | morado + sombra morada | `#7864D8` | `scale 0.98` | gris `#E5E2EE` / texto `#A29EAF`, sin sombra |
 | Botón secundario | blanco, borde `#D5CEF9`, texto morado | `bg-brand-50/50` | `scale 0.98` | — |
-| Opción radio | blanco, texto gris | `bg-gray-50/80` | `bg-brand-100`, texto morado 500 | — |
-| Input | blanco | — | `ring-2 ring-brand/30` (focus) | — |
+| Opción radio | `gray-50`, texto gris | `bg-gray-50/80` | `bg-brand-100`, texto morado 500 | — |
+| Input | `gray-50` | — | fondo blanco + `ring-2 ring-brand/30` (focus) | — |
 | Tab | gris 700, peso 500 | gris 900 | morado, peso 600, subrayado | — |
 | Pill filtro | borde gris, texto gris | `bg-gray-50` | borde + texto morado, `bg-brand/5` | — |
 | Fila acordeón | blanco | `bg-gray-50/50–70` | — | — |

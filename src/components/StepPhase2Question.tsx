@@ -20,6 +20,7 @@ const AUTO_ADVANCE_MS = 520;
 /* Keyframes del parpadeo entre brand-100 y brand-200. motion no interpola var(), por eso hex. */
 const BRAND_100 = '#EDE9FE';
 const BRAND_200 = '#D8CDFB';
+const GRAY_50 = '#F8F9FA'; // fondo de opción sin seleccionar
 const BLINK_BG = [BRAND_100, BRAND_200, BRAND_100, BRAND_200, BRAND_100];
 
 export const StepPhase2Question: React.FC<StepPhase2QuestionProps> = ({
@@ -92,7 +93,7 @@ export const StepPhase2Question: React.FC<StepPhase2QuestionProps> = ({
                 animate={
                   isBlinking
                     ? { scale: [1, 1.02, 0.99, 1.01, 1], backgroundColor: BLINK_BG }
-                    : { scale: 1, backgroundColor: selected ? BLINK_BG[0] : '#ffffff' }
+                    : { scale: 1, backgroundColor: selected ? BLINK_BG[0] : GRAY_50 }
                 }
                 transition={{ duration: isBlinking ? 0.45 : 0.2, ease: 'easeInOut' }}
               />

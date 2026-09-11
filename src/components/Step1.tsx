@@ -20,7 +20,7 @@ const GENDER_OPTIONS: { value: FormData['gender']; label: string }[] = [
 
 const LABEL = 'block text-[16px] sm:text-[17px] md:text-[18px] text-gray-800 mb-3 font-medium';
 const INPUT =
-  'min-h-[56px] bg-white border-none rounded-2xl px-5 text-[15px] sm:text-[16px] text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors';
+  'min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 text-[15px] sm:text-[16px] text-gray-700 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors';
 
 export const Step1: React.FC<Step1Props> = ({ formData, updateForm, onNext, onBack }) => {
   const dateInputRef = useRef<HTMLInputElement>(null);

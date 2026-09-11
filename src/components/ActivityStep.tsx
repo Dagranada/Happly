@@ -64,7 +64,7 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
           onChange={(e) => onChange({ ...answer, text: e.target.value })}
           placeholder={activity.placeholder ?? 'Escribe aquí'}
           rows={1}
-          className="w-full min-h-[112px] md:min-h-[56px] bg-white/70 border-none rounded-2xl px-5 py-4 text-[15px] sm:text-[16px] text-gray-800 placeholder-gray-400 resize-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors"
+          className="w-full min-h-[112px] md:min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 py-4 text-[15px] sm:text-[16px] text-gray-800 placeholder-gray-400 resize-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors"
         />
       </div>
 

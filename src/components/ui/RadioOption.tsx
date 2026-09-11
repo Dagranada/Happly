@@ -30,7 +30,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
     <motion.label
       className={`min-h-[56px] rounded-2xl px-4 py-3.5 flex items-center gap-3.5 cursor-pointer transition-colors select-none ${
         centerOnMobile ? 'justify-center sm:justify-start' : ''
-      } ${checked ? 'bg-brand-100' : 'bg-white hover:bg-gray-50/80'} ${className}`}
+      } ${checked ? 'bg-brand-100' : 'bg-gray-50 hover:bg-gray-100'} ${className}`}
       {...motionProps}
     >
       <input

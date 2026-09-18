@@ -112,7 +112,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 | Título de tarjeta | 17 px | 700 | Acordeón Program |
 | Pregunta / label | 16 → 17 → 18 px | 500, `#4A4A4A` | "¿Tienes pareja?" |
 | Enunciado Fase 2 | 17 → 19 → 20 px | 500 | "En mi cotidianidad..." |
-| Botón primario | 17 → 18 px | 600 | "Continuar" |
+| Botón primario | 16 → 18 px | 600 | "Continuar" |
 | Opción de radio | 15 → 16 px | 500 | |
 | Inputs / textarea | 16 px fijo | 400 | evita el zoom automático de iOS |
 | Cuerpo | 14.5 → 15 px | 400, `leading-relaxed` | |
@@ -130,7 +130,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 - Espaciado vertical entre preguntas: `space-y-7`; entre tarjetas: `space-y-4`; entre opciones: `space-y-3 / 3.5`.
 - Padding de tarjetas: `p-5` (Home), `p-5 sm:p-6 md:p-7` (reglas), `p-4 sm:p-5` (resultados).
 - Logo con 48 px de aire superior (`pt-12`) en el cuestionario.
-- Botones: `py-3.5 sm:py-4 px-9`.
+- Botones: `py-3.5 sm:py-4 px-5 sm:px-9`, 16 → 18 px, `whitespace-nowrap` (en móvil el padding lateral baja para que Volver + Siguiente quepan en una fila incluso a 320 px).
 - **Separación botón ↔ contenido anterior: 32 px en todas las pantallas** (`ButtonRow`, `mt-8`). La fila va como hermana del bloque `space-y-*`, nunca dentro, para que el margen no se sume. En reglas (desktop) la fila comparte línea con Sí/No (`md:mt-0`) y el hueco lo aporta el contenedor (`pt-3` + `space-y-5` = 32 px).
 
 ### 3.4 Radios de borde
@@ -194,7 +194,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 | `RadioOption` | [ui/RadioOption.tsx](src/components/ui/RadioOption.tsx) | Tarjeta seleccionable (`<motion.label>`): `name`, `value`, `checked`, `onChange`, `label`, `centerOnMobile`; acepta props de `motion` (animación de parpadeo en Fase 2). |
 | `BackButton` | [ui/BackButton.tsx](src/components/ui/BackButton.tsx) | `Button` secundario con flecha `ArrowLeft` + "Volver"; usado en Step1–3 y en las preguntas de Fase 2. |
 | `NextButton` | [ui/NextButton.tsx](src/components/ui/NextButton.tsx) | `Button` primario `type="submit"` con "Siguiente" + `ArrowRight`; acepta `disabled`. Usado en Step1, Step2 y preguntas 1–9 de Fase 2. |
-| `ButtonRow` | [ui/ButtonRow.tsx](src/components/ui/ButtonRow.tsx) | Fila de acciones de pantalla: `mt-8 flex flex-wrap gap-3.5`, `align` start/center. Usada en Step1–3, Fase 2 (intro y preguntas), resultados, actividades, reglas y pantalla de error. |
+| `ButtonRow` | [ui/ButtonRow.tsx](src/components/ui/ButtonRow.tsx) | Fila de acciones de pantalla: `mt-8 flex flex-nowrap gap-3 sm:gap-3.5`, `align` start/center. **Nunca apila**: con 2+ botones cada uno toma `flex-1` en móvil (mitad de la fila) y desde `sm` vuelve a su ancho natural; un botón solo conserva su ancho. Usada en Step1–3, Fase 2 (intro y preguntas), resultados, actividades, reglas y pantalla de error. |
 | `Card` | [ui/Card.tsx](src/components/ui/Card.tsx) | Superficie única `bg-white rounded-3xl border border-gray-100 shadow-card` (exportada como `CARD_SURFACE`); `flush` quita el padding. Sin variantes. |
 | `LevelBadge` / `StatusBadge` | [ui/Badge.tsx](src/components/ui/Badge.tsx) | Nivel Alto/Medio/Bajo (`size` sm/md) y estado Pendiente/Completada/Incompleta. `getLevel(score)` vive en [lib/levels.ts](src/lib/levels.ts). |
 | `Avatar` | [ui/Avatar.tsx](src/components/ui/Avatar.tsx) | Foto circular; sin `src` muestra el vector predeterminado (`UserRound` en `brand` sobre `brand-100`). Usado en la tarjeta de perfil (con lápiz para cambiar la foto) y en el Ranking. |
@@ -205,7 +205,7 @@ Las clases de referencia de cada primitivo:
 
 #### Botón primario
 ```
-py-3.5 sm:py-4 px-9 rounded-full bg-brand text-white font-semibold text-[17px] sm:text-[18px]
+py-3.5 sm:py-4 px-5 sm:px-9 rounded-full bg-brand text-white font-semibold text-[16px] sm:text-[18px] whitespace-nowrap
 shadow-cta hover:bg-brand-600 active:scale-[0.98] transition-all
 ```
 - Deshabilitado: `bg-gray-200 text-gray-400 cursor-not-allowed shadow-none`.
@@ -213,7 +213,7 @@ shadow-cta hover:bg-brand-600 active:scale-[0.98] transition-all
 
 #### Botón secundario (outline)
 ```
-py-3.5 sm:py-4 px-9 rounded-full border border-brand-200 bg-white text-brand font-semibold
+py-3.5 sm:py-4 px-5 sm:px-9 rounded-full border border-brand-200 bg-white text-brand font-semibold
 hover:bg-brand-50/50 active:scale-[0.98]
 ```
 - Texto: "Volver" precedido de `ArrowLeft` (componente `BackButton`). Siempre va a la izquierda del primario dentro de un `ButtonRow`.

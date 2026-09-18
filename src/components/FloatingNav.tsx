@@ -1,7 +1,7 @@
 import React from 'react';
-import { FileText, UserRound, HeartPulse, ChartColumn, ClipboardList, House, type LucideIcon } from 'lucide-react';
+import { FileText, UserRound, HeartPulse, ChartColumn, ClipboardList, TriangleAlert, House, type LucideIcon } from 'lucide-react';
 
-export type NavTarget = 'terms' | 'personal' | 'test' | 'results' | 'activities' | 'home';
+export type NavTarget = 'terms' | 'personal' | 'test' | 'results' | 'activities' | 'errors' | 'home';
 
 interface FloatingNavProps {
   active: NavTarget;
@@ -14,10 +14,11 @@ const ITEMS: { id: NavTarget; label: string; Icon: LucideIcon }[] = [
   { id: 'test', label: 'Test de felicidad', Icon: HeartPulse },
   { id: 'results', label: 'Resultados', Icon: ChartColumn },
   { id: 'activities', label: 'Actividades', Icon: ClipboardList },
+  { id: 'errors', label: 'Pantallas de error', Icon: TriangleAlert },
   { id: 'home', label: 'Inicio', Icon: House },
 ];
 
-/** Botonera flotante para saltar entre las pantallas principales. */
+/** Botonera flotante para saltar entre las pantallas principales (7 destinos). */
 export const FloatingNav: React.FC<FloatingNavProps> = ({ active, onNavigate }) => (
   <nav
     aria-label="Navegación entre pantallas"
@@ -33,7 +34,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ active, onNavigate }) 
           aria-label={label}
           aria-current={isActive ? 'page' : undefined}
           title={label}
-          className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all cursor-pointer focus-ring ${
+          className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all cursor-pointer focus-ring touch-manipulation ${
             isActive
               ? 'bg-brand text-white shadow-cta'
               : 'text-gray-500 hover:text-brand hover:bg-brand-50 active:scale-95'

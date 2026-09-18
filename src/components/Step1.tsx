@@ -3,6 +3,7 @@ import { Calendar } from 'lucide-react';
 import { FormData } from '../types';
 import { BackButton } from './ui/BackButton';
 import { NextButton } from './ui/NextButton';
+import { ButtonRow } from './ui/ButtonRow';
 import { RadioOption } from './ui/RadioOption';
 
 interface Step1Props {
@@ -20,7 +21,7 @@ const GENDER_OPTIONS: { value: FormData['gender']; label: string }[] = [
 
 const LABEL = 'block text-[16px] sm:text-[17px] md:text-[18px] text-gray-800 mb-3 font-medium';
 const INPUT =
-  'min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 text-[15px] sm:text-[16px] text-gray-700 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors';
+  'min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 text-[16px] text-gray-700 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors';
 
 export const Step1: React.FC<Step1Props> = ({ formData, updateForm, onNext, onBack }) => {
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -39,9 +40,10 @@ export const Step1: React.FC<Step1Props> = ({ formData, updateForm, onNext, onBa
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-7">
       <fieldset>
-        <legend className={LABEL}>¿Con cual género te identificas?</legend>
+        <legend className={LABEL}>¿Con cuál género te identificas?</legend>
         <div className="flex flex-wrap gap-2.5 sm:gap-3">
           {GENDER_OPTIONS.map((opt) => (
             <RadioOption
@@ -91,7 +93,7 @@ export const Step1: React.FC<Step1Props> = ({ formData, updateForm, onNext, onBa
             value="si"
             checked={formData.hasPartner === 'si'}
             onChange={() => updateForm({ hasPartner: 'si' })}
-            label="Si"
+            label="Sí"
                         className="gap-2 pr-5"
           />
           <RadioOption
@@ -134,13 +136,12 @@ export const Step1: React.FC<Step1Props> = ({ formData, updateForm, onNext, onBa
           className={`w-24 sm:w-28 ${INPUT}`}
         />
       </div>
-
-      <div className="flex items-center gap-3.5 pt-4 sm:pt-6">
-        {onBack && (
-          <BackButton onClick={onBack} />
-        )}
-        <NextButton />
       </div>
+
+      <ButtonRow>
+        {onBack && <BackButton onClick={onBack} />}
+        <NextButton />
+      </ButtonRow>
     </form>
   );
 };

@@ -28,7 +28,7 @@ export const RadioOption: React.FC<RadioOptionProps> = ({
 }) => {
   return (
     <motion.label
-      className={`min-h-[56px] rounded-2xl px-4 py-3.5 flex items-center gap-3.5 cursor-pointer transition-colors select-none ${
+      className={`min-h-[56px] rounded-2xl px-4 py-3.5 flex items-center gap-3.5 cursor-pointer transition-colors select-none touch-manipulation ${
         centerOnMobile ? 'justify-center sm:justify-start' : ''
       } ${checked ? 'bg-brand-100' : 'bg-gray-50 hover:bg-gray-100'} ${className}`}
       {...motionProps}

@@ -5,6 +5,7 @@ import { FormData } from '../types';
 import { PHASE_2_QUESTIONS } from '../data/phase2Questions';
 import { getLevel } from '../lib/levels';
 import { Button } from './ui/Button';
+import { ButtonRow } from './ui/ButtonRow';
 import { Card } from './ui/Card';
 import { LevelBadge } from './ui/Badge';
 import { Modal } from './ui/Modal';
@@ -293,10 +294,11 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ formData, onRese
           Recuerda que para mejorar tus niveles debes desarrollar un hábito, y para eso está este programa.
         </p>
 
-        <div className="pt-2 pb-4 flex justify-center">
-          <Button onClick={() => setShowConfirmModal(true)}>Entendido</Button>
-        </div>
       </div>
+
+      <ButtonRow align="center" className="pb-4">
+        <Button onClick={() => setShowConfirmModal(true)}>Entendido</Button>
+      </ButtonRow>
 
       <Modal
         isOpen={showConfirmModal}

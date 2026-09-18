@@ -4,6 +4,7 @@ import { Activity } from '../data/activities';
 import { ActivityAnswer, Mood } from '../types';
 import { Button } from './ui/Button';
 import { BackButton } from './ui/BackButton';
+import { ButtonRow } from './ui/ButtonRow';
 
 interface ActivityStepProps {
   activity: Activity;
@@ -40,7 +41,8 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-5 sm:space-y-6">
       <div>
         <p className="text-[16px] sm:text-[17px] font-semibold text-gray-900">
           Actividad {index + 1} de {total}
@@ -64,7 +66,7 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
           onChange={(e) => onChange({ ...answer, text: e.target.value })}
           placeholder={activity.placeholder ?? 'Escribe aquí'}
           rows={1}
-          className="w-full min-h-[112px] md:min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 py-4 text-[15px] sm:text-[16px] text-gray-800 placeholder-gray-400 resize-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors"
+          className="w-full min-h-[112px] md:min-h-[56px] bg-gray-50 border-none rounded-2xl px-5 py-4 text-[16px] text-gray-800 placeholder-gray-400 resize-none focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 transition-colors"
         />
       </div>
 
@@ -77,7 +79,7 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
             const selected = answer.mood === value;
             const showLabel = value === 1 || value === 5;
             return (
-              <label key={value} className="flex flex-col items-center gap-1.5 cursor-pointer group">
+              <label key={value} className="relative flex flex-col items-center gap-1.5 cursor-pointer group touch-manipulation">
                 <input
                   type="radio"
                   name={`mood-${activity.id}`}
@@ -105,13 +107,15 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
         </div>
       </fieldset>
 
-      <div className="flex items-center gap-3.5 pt-2">
+      </div>
+
+      <ButtonRow>
         {onBack && <BackButton onClick={onBack} />}
         <Button type="submit" disabled={!canContinue}>
           Enviar
           <Send className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
         </Button>
-      </div>
+      </ButtonRow>
     </form>
   );
 };

@@ -16,9 +16,9 @@ const getProgress = (step: number): number | null => {
 };
 
 const getTitleSuffix = (step: number) => {
-  if (step === 0) return ', Conoce las reglas';
-  if (step >= 4 && step <= 14) return ', midamos tu felicidad en el trabajo';
-  return ', Conozcamonos';
+  if (step === 0) return ', conoce las reglas';
+  if (step >= 4 && step <= 14) return ', cuéntanos más de ti';
+  return ', conozcámonos';
 };
 
 export const Header: React.FC<HeaderProps> = ({ currentStep, userName }) => {
@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ currentStep, userName }) => {
     return (
       <header className="mb-6 sm:mb-8 text-center">
         <div className="pt-12 mb-3 sm:mb-4 flex justify-center">
-          <HapplyLogo className="h-9 sm:h-11 w-auto text-gray-400" />
+          <HapplyLogo />
         </div>
         <h1 className="text-[26px] sm:text-[30px] md:text-[32px] font-extrabold text-gray-900 tracking-tight">
           Tus resultados
@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ currentStep, userName }) => {
     return (
       <header className="mb-6 sm:mb-8">
         <div className="pt-12">
-          <HapplyLogo className="h-9 sm:h-11 w-auto text-gray-400" />
+          <HapplyLogo />
         </div>
       </header>
     );
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ currentStep, userName }) => {
   return (
     <header className="mb-6 sm:mb-8">
       <div className="pt-12 mb-4 sm:mb-6">
-        <HapplyLogo className="h-9 sm:h-11 w-auto text-gray-400" />
+        <HapplyLogo />
       </div>
 
       <h1 className="text-[22px] sm:text-[26px] md:text-[28px] font-bold text-gray-900 tracking-tight leading-tight mb-3 sm:mb-4">

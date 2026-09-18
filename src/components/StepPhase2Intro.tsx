@@ -1,6 +1,7 @@
 import React from 'react';
 import portraitImg from '../assets/images/happy_thoughtful_woman_1787882139463.jpg';
 import { Button } from './ui/Button';
+import { ButtonRow } from './ui/ButtonRow';
 
 interface StepPhase2IntroProps {
   onStartPhase2: () => void;
@@ -22,7 +23,8 @@ const INSTRUCTIONS: React.ReactNode[] = [
 ];
 
 export const StepPhase2Intro: React.FC<StepPhase2IntroProps> = ({ onStartPhase2 }) => (
-  <div className="space-y-6 pb-6 animate-in fade-in duration-300">
+  <div className="pb-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
     {/* En desktop: ilustración a la izquierda, título e instrucciones a la derecha */}
     <div className="md:flex md:items-start md:gap-8 space-y-6 md:space-y-0">
       {/* Ilustración: blob lavanda + acento amarillo + retrato circular */}
@@ -67,8 +69,10 @@ export const StepPhase2Intro: React.FC<StepPhase2IntroProps> = ({ onStartPhase2 
       lo que sientes y piensas.
     </p>
 
-    <div className="pt-2">
-      <Button onClick={onStartPhase2}>Empezar</Button>
     </div>
+
+    <ButtonRow>
+      <Button onClick={onStartPhase2}>Empezar</Button>
+    </ButtonRow>
   </div>
 );

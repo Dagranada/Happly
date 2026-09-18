@@ -176,7 +176,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
 
       <main className="flex-grow px-4 sm:px-6 md:px-8 pt-5 sm:pt-6 pb-28 max-w-md sm:max-w-lg lg:max-w-5xl xl:max-w-6xl mx-auto w-full flex flex-col justify-start relative z-10">
         <div className="py-2.5 mb-2 lg:pt-8 lg:mb-10 flex justify-center lg:justify-start items-center">
-          <HapplyLogo className="h-8 sm:h-9 w-auto text-gray-400" />
+          <HapplyLogo />
         </div>
 
         {/* Desktop (lg+): perfil fijo a la izquierda, tabs y contenido a la derecha */}
@@ -389,7 +389,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
                   </h3>
                   <div>
                     <h4 className="text-[16px] font-bold text-gray-900 leading-snug">
-                      Dia 5. Agradecer en una palabra
+                      Día 5. Agradecer en una palabra
                     </h4>
                     <p className="text-[12.5px] text-gray-400 font-normal mt-0.5">
                       Programada el 22 de mayo de 2026, 12:00 a. m.
@@ -447,7 +447,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
                         value={intentionText}
                         onChange={(e) => setIntentionText(e.target.value)}
                         placeholder="Escribe aquí"
-                        className="flex-grow bg-gray-50 text-gray-800 placeholder-gray-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-brand/30 transition-all"
+                        className="flex-grow bg-gray-50 text-gray-800 placeholder-gray-400 text-[16px] px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-brand/30 transition-all"
                       />
                       <button
                         type="submit"

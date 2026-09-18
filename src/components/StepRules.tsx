@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Eye, BadgeCheck, ArrowRight } from 'lucide-react';
 import { FormData } from '../types';
 import { Button } from './ui/Button';
+import { ButtonRow } from './ui/ButtonRow';
 import { Card } from './ui/Card';
 import { RadioOption } from './ui/RadioOption';
 
@@ -23,7 +24,7 @@ const RULE_CARDS = [
     id: 'card-confidentiality',
     Icon: BadgeCheck,
     title: 'Confidencialidad garantizada:',
-    body: 'Tu participación es voluntaria y confidencial. Tu organización no podrá ver tus resultados individuales, solo los datos agrupados por equipos de trabajo. Además, tratamos tus respuestas de nuestra política de manejo de datos.',
+    body: 'Tu participación es voluntaria y confidencial. Tu organización no podrá ver tus resultados individuales, solo los datos agrupados por equipos de trabajo. Además, tratamos tus respuestas según nuestra política de manejo de datos.',
   },
 ];
 
@@ -143,8 +144,8 @@ export const StepRules: React.FC<StepRulesProps> = ({ formData, updateForm, onSt
               Dejo constancia expresa que, (i) conozco mi derecho a acceder en cualquier momento a los datos
               suministrados, a solicitar su corrección, actualización o supresión en los términos establecidos
               en la ley, y (ii) que puedo acceder en cualquier momento a la Política de Tratamiento de Datos
-              Personales se encuentra publicada en la página web para conocimiento de todos los titulares de
-              la información.
+              Personales, que se encuentra publicada en la página web para conocimiento de todos los titulares
+              de la información.
             </p>
           </div>
 
@@ -166,7 +167,8 @@ export const StepRules: React.FC<StepRulesProps> = ({ formData, updateForm, onSt
         </Card>
       </section>
 
-      <div className="pt-2 space-y-4">
+      {/* pt-3 + space-y-5 del form = 32 px, igual que ButtonRow */}
+      <div className="pt-3 space-y-4">
         <div className="md:flex md:items-end md:justify-between md:gap-6">
           <fieldset>
             <legend className="text-[17px] text-gray-800 mb-3 font-medium">¿Aceptas los términos?</legend>
@@ -179,7 +181,7 @@ export const StepRules: React.FC<StepRulesProps> = ({ formData, updateForm, onSt
                   setShowDeclinedNotice(false);
                   updateForm({ acceptedTerms: 'si' });
                 }}
-                label="Si"
+                label="Sí"
                 className="gap-2 pr-5"
               />
               <RadioOption
@@ -193,11 +195,11 @@ export const StepRules: React.FC<StepRulesProps> = ({ formData, updateForm, onSt
             </div>
           </fieldset>
 
-          <div className="pt-2 md:pt-0">
+          <ButtonRow className="md:mt-0">
             <Button type="submit" disabled={!hasSelected}>
               Continuar
             </Button>
-          </div>
+          </ButtonRow>
         </div>
 
         {showDeclinedNotice && formData.acceptedTerms === 'no' && (

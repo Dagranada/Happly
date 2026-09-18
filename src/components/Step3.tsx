@@ -2,6 +2,7 @@ import React from 'react';
 import { FormData } from '../types';
 import { Button } from './ui/Button';
 import { BackButton } from './ui/BackButton';
+import { ButtonRow } from './ui/ButtonRow';
 import { RadioOption } from './ui/RadioOption';
 
 interface Step3Props {
@@ -24,7 +25,7 @@ export const Step3: React.FC<Step3Props> = ({ formData, updateForm, onFinish, on
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex-grow flex flex-col justify-between">
+    <form onSubmit={handleSubmit}>
       <fieldset>
         <legend className="text-[18px] sm:text-[20px] md:text-[21px] font-semibold text-gray-800 mb-6">
           Yo prefiero un trabajo en donde
@@ -44,10 +45,10 @@ export const Step3: React.FC<Step3Props> = ({ formData, updateForm, onFinish, on
         </div>
       </fieldset>
 
-      <nav className="mt-10 sm:mt-12 flex items-center gap-3.5">
+      <ButtonRow>
         <BackButton onClick={onBack} />
         <Button type="submit">Terminar</Button>
-      </nav>
+      </ButtonRow>
     </form>
   );
 };

@@ -4,6 +4,7 @@ import { FormData } from '../types';
 import { Button } from './ui/Button';
 import { BackButton } from './ui/BackButton';
 import { NextButton } from './ui/NextButton';
+import { ButtonRow } from './ui/ButtonRow';
 import { RadioOption } from './ui/RadioOption';
 
 interface StepPhase2QuestionProps {
@@ -69,7 +70,7 @@ export const StepPhase2Question: React.FC<StepPhase2QuestionProps> = ({
   const submitText = question.submitLabel || (isLastQuestion ? 'Terminar' : 'Siguiente');
 
   return (
-    <form onSubmit={handleSubmit} className="flex-grow flex flex-col justify-between animate-in fade-in duration-300">
+    <form onSubmit={handleSubmit} className="animate-in fade-in duration-300">
       <fieldset className="space-y-4">
         <legend className="text-[17px] sm:text-[19px] md:text-[20px] font-medium text-gray-800 tracking-tight">
           {question.prompt}
@@ -102,7 +103,7 @@ export const StepPhase2Question: React.FC<StepPhase2QuestionProps> = ({
         </div>
       </fieldset>
 
-      <div className="pt-6 sm:pt-8 pb-4 flex items-center gap-3.5">
+      <ButtonRow>
         {onBack && (
           <BackButton
             onClick={() => {
@@ -118,7 +119,7 @@ export const StepPhase2Question: React.FC<StepPhase2QuestionProps> = ({
             {submitText}
           </Button>
         )}
-      </div>
+      </ButtonRow>
     </form>
   );
 };

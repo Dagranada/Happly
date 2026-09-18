@@ -9,7 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const BASE =
-  'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all cursor-pointer focus-ring disabled:cursor-not-allowed';
+  'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all cursor-pointer focus-ring touch-manipulation disabled:cursor-not-allowed';
 
 const SIZES: Record<Size, string> = {
   lg: 'py-3.5 sm:py-4 px-9 text-[17px] sm:text-[18px]',

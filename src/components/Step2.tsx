@@ -2,6 +2,7 @@ import React from 'react';
 import { FormData } from '../types';
 import { BackButton } from './ui/BackButton';
 import { NextButton } from './ui/NextButton';
+import { ButtonRow } from './ui/ButtonRow';
 import { RadioOption } from './ui/RadioOption';
 
 interface Step2Props {
@@ -17,9 +18,9 @@ type YesNoField = keyof Pick<
 >;
 
 const YES_NO_QUESTIONS: { field: YesNoField; title: string }[] = [
-  { field: 'incomeCoversNeeds', title: 'Tus ingresos actuales, ¿alcanza a cubrir tus necesidades?' },
+  { field: 'incomeCoversNeeds', title: 'Tus ingresos actuales, ¿alcanzan a cubrir tus necesidades?' },
   { field: 'hasSupportNetwork', title: '¿Cuentas con amigos o familiares cercanos que te apoyen?' },
-  { field: 'hasSpiritualPsychSupport', title: '¿Cuentas con algun tipo de acompañamiento psicológico/espiritual?' },
+  { field: 'hasSpiritualPsychSupport', title: '¿Cuentas con algún tipo de acompañamiento psicológico/espiritual?' },
   { field: 'hasTeamInCharge', title: 'Actualmente, ¿tienes personas a cargo en tu empleo?' },
 ];
 
@@ -38,7 +39,8 @@ export const Step2: React.FC<Step2Props> = ({ formData, updateForm, onNext, onBa
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-7">
       {YES_NO_QUESTIONS.map(({ field, title }) => (
         <fieldset key={field} className="space-y-3">
           <legend className={QUESTION}>{title}</legend>
@@ -50,7 +52,7 @@ export const Step2: React.FC<Step2Props> = ({ formData, updateForm, onNext, onBa
                 value={v}
                 checked={formData[field] === v}
                 onChange={() => updateForm({ [field]: v })}
-                label={v === 'si' ? 'Si' : 'No'}
+                label={v === 'si' ? 'Sí' : 'No'}
                                 className="gap-2 pr-5"
               />
             ))}
@@ -75,10 +77,12 @@ export const Step2: React.FC<Step2Props> = ({ formData, updateForm, onNext, onBa
         </div>
       </fieldset>
 
-      <div className="flex items-center gap-3.5 pt-4 sm:pt-6">
+      </div>
+
+      <ButtonRow>
         <BackButton onClick={onBack} />
         <NextButton />
-      </div>
+      </ButtonRow>
     </form>
   );
 };

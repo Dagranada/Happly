@@ -1,15 +1,18 @@
 import React from 'react';
 
 interface HapplyLogoProps {
-  /** Tamaño y color (p. ej. "h-9 w-auto text-gray-400"). */
+  /** Clases extra (posición/color). El tamaño es único en toda la app: h-9 sm:h-11. */
   className?: string;
 }
 
-export const HapplyLogo: React.FC<HapplyLogoProps> = ({ className = 'h-10 w-auto text-gray-400' }) => {
+/** Tamaño y color únicos del logo en todas las pantallas */
+const LOGO_CLASSES = 'h-9 sm:h-11 w-auto text-gray-400';
+
+export const HapplyLogo: React.FC<HapplyLogoProps> = ({ className = '' }) => {
   return (
     <div className="flex items-center">
       <svg
-        className={className}
+        className={`${LOGO_CLASSES} ${className}`}
         viewBox="0 0 117 45"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

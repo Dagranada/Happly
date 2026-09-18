@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FormData, INITIAL_FORM_DATA, ActivityAnswer } from './types';
 import { PHASE_2_QUESTIONS } from './data/phase2Questions';
@@ -18,6 +18,8 @@ import { StepPhase2Intro } from './components/StepPhase2Intro';
 import { StepPhase2Question } from './components/StepPhase2Question';
 import { ResultsSummary } from './components/ResultsSummary';
 import { ActivityStep } from './components/ActivityStep';
+import { SuspendedActivityScreen } from './components/SuspendedActivityScreen';
+import { LoadErrorScreen } from './components/LoadErrorScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { TermsModal } from './components/TermsModal';
 import { FloatingNav, type NavTarget } from './components/FloatingNav';
@@ -56,7 +58,9 @@ const resultsVariants = {
 };
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<'home' | 'survey'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'survey' | 'errors'>('home');
+  /* Índice dentro de la secuencia de pantallas de error (ver ERROR_SCREENS) */
+  const [errorIndex, setErrorIndex] = useState(0);
   const [currentStep, setCurrentStep] = useState<number>(STEP.RULES);
   const [direction, setDirection] = useState<1 | -1>(1);
 
@@ -74,7 +78,7 @@ export default function App() {
 
   const openTerms = useCallback(() => setIsTermsOpen(true), []);
 
-  const NAV_STEP: Record<Exclude<NavTarget, 'home'>, number> = {
+  const NAV_STEP: Record<Exclude<NavTarget, 'home' | 'errors'>, number> = {
     terms: STEP.RULES,
     personal: STEP.PHASE1_FIRST,
     test: STEP.PHASE2_INTRO,
@@ -85,6 +89,8 @@ export default function App() {
   const activeNav: NavTarget =
     viewMode === 'home'
       ? 'home'
+      : viewMode === 'errors'
+        ? 'errors'
       : currentStep === STEP.RULES
         ? 'terms'
         : currentStep <= STEP.PHASE1_LAST
@@ -100,10 +106,21 @@ export default function App() {
       setViewMode('home');
       return;
     }
+    if (target === 'errors') {
+      setErrorIndex(0);
+      setViewMode('errors');
+      return;
+    }
     goToStep(NAV_STEP[target]);
     setViewMode('survey');
   };
   const closeTerms = useCallback(() => setIsTermsOpen(false), []);
+
+  const ERROR_SCREEN_COUNT = 2;
+  const closeError = () => {
+    if (errorIndex + 1 < ERROR_SCREEN_COUNT) setErrorIndex(errorIndex + 1);
+    else setViewMode('home');
+  };
 
   // Scroll arriba en cada cambio de paso; snackbar al cerrar la Fase 1
   useEffect(() => {
@@ -125,6 +142,21 @@ export default function App() {
     setFormData(INITIAL_FORM_DATA);
     goToStep(STEP.RULES);
   };
+
+  if (viewMode === 'errors') {
+    /* Secuencia de pantallas de error; "Cerrar" avanza a la siguiente y, en la última, vuelve a Inicio */
+    const ERROR_SCREENS: React.ReactElement[] = [
+      <SuspendedActivityScreen key="suspended" onClose={closeError} onOpenTerms={openTerms} />,
+      <LoadErrorScreen key="load-error" userName={formData.userName} onRetry={closeError} onOpenTerms={openTerms} />,
+    ];
+    return (
+      <>
+        {ERROR_SCREENS[Math.min(errorIndex, ERROR_SCREENS.length - 1)]}
+        <FloatingNav active={activeNav} onNavigate={handleNavigate} />
+        <TermsModal isOpen={isTermsOpen} onClose={closeTerms} />
+      </>
+    );
+  }
 
   if (viewMode === 'home') {
     return (

@@ -10,12 +10,12 @@ interface TermsModalProps {
 
 const SECTIONS = [
   {
-    title: '1. Propósito del Cuestionario',
+    title: '1. Propósito del cuestionario',
     body:
       'El módulo "Conozcámonos" tiene como finalidad entender tus preferencias laborales, entorno de apoyo y metas personales para ofrecerte herramientas y recomendaciones adaptadas a tu perfil.',
   },
   {
-    title: '2. Protección de Datos Personales',
+    title: '2. Protección de datos personales',
     body:
       'Happly no vende ni comparte tus datos individuales con terceros sin tu consentimiento explícito. Los datos agregados pueden usarse para métricas de bienestar organizacional.',
   },
@@ -42,7 +42,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => (
       </div>
       <div>
         <h3 id="terms-modal-title" className="text-xl font-bold text-gray-900">
-          Términos y Condiciones
+          Términos y condiciones
         </h3>
         <p className="text-xs text-gray-500">Happly Platform • 2026</p>
       </div>

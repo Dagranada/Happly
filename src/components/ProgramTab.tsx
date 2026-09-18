@@ -33,11 +33,11 @@ interface Program {
 
 /* Datos de demostración */
 const WEEK_ACTIVITIES: Activity[] = [
-  { id: 'd5', title: 'Dia 5. Agradecer en una palabra', status: 'pendiente', dateLabel: 'Programada el: 18 de mayo 2026' },
-  { id: 'd4', title: 'Dia 4. Agradecer en una palabra', status: 'pendiente', dateLabel: 'Programada el: 18 de mayo 2026', actionable: true },
-  { id: 'd3', title: 'Dia 3. Amabilidad conmigo mismo', status: 'completada', dateLabel: 'Completada el: 18 de mayo 2026, 7:06 PM' },
-  { id: 'd2', title: 'Dia 2. Amabilidad conmigo mismo', status: 'incompleta', dateLabel: 'Vencida el: 18 de mayo 2026' },
-  { id: 'd1', title: 'Dia 1. Amabilidad conmigo mismo', status: 'completada', dateLabel: 'Completada el: 18 de mayo 2026, 7:06 PM' },
+  { id: 'd5', title: 'Día 5. Agradecer en una palabra', status: 'pendiente', dateLabel: 'Programada el: 18 de mayo de 2026' },
+  { id: 'd4', title: 'Día 4. Agradecer en una palabra', status: 'pendiente', dateLabel: 'Programada el: 18 de mayo de 2026', actionable: true },
+  { id: 'd3', title: 'Día 3. Amabilidad conmigo mismo', status: 'completada', dateLabel: 'Completada el: 18 de mayo de 2026, 7:06 p. m.' },
+  { id: 'd2', title: 'Día 2. Amabilidad conmigo mismo', status: 'incompleta', dateLabel: 'Vencida el: 18 de mayo de 2026' },
+  { id: 'd1', title: 'Día 1. Amabilidad conmigo mismo', status: 'completada', dateLabel: 'Completada el: 18 de mayo de 2026, 7:06 p. m.' },
 ];
 
 const makeWeek = (id: string, activities: Activity[] = []): Week => ({

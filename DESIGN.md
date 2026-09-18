@@ -27,9 +27,9 @@ Documento de referencia del diseño de la app **Happly – Conozcámonos**: toke
 3. **Un solo color de marca.** El morado `#8774E1` hace todo el trabajo de acento: botones primarios, progreso, selección, links, tabs activas. Los demás colores son semánticos (éxito, error, pendiente) o neutros.
 4. **Tarjetas blancas sobre fondo tintado.** Las superficies se separan del fondo por contraste blanco/lavanda, no por bordes marcados.
 5. **Sin bordes en formularios.** Inputs y opciones de radio son bloques `gray-50` sin borde (destacan sobre el fondo blanco); el estado seleccionado se comunica con relleno lavanda + texto morado, y el foco con un anillo morado translúcido.
-6. **Targets táctiles ≥ 56 px.** Toda opción de radio/checkbox y todo input tiene `min-h-[56px]` (reforzado globalmente en CSS con `:has()`).
+6. **Targets táctiles ≥ 56 px y sin saltos en móvil.** Toda opción de radio/checkbox y todo input tiene `min-h-[56px]` (reforzado globalmente en CSS con `:has()`). Los campos de texto usan **16 px** de fuente en todos los tamaños (iOS hace zoom al enfocar campos menores); los inputs ocultos con `sr-only` viven dentro de un contenedor `relative` para que el foco no desplace la página; botones, opciones y botonera llevan `touch-manipulation` (sin retardo de 300 ms ni doble‑tap‑zoom).
 7. **Feedback inmediato y ligero.** Micro‑animaciones cortas (200–500 ms), toasts que desaparecen solos, auto‑avance en la Fase 2.
-8. **Español informal y cercano (tuteo).** Tono de "compañero", emojis en los textos de resultados.
+8. **Español informal y cercano (tuteo).** Tono de "compañero", emojis en los textos de resultados. Ortografía RAE: tildes (`Sí`, `Día`, `cuál`, `algún`, `conozcámonos`), minúscula tras coma en los títulos del header, fechas "18 de mayo de 2026" y horas "12:00 a. m." / "7:06 p. m.".
 
 ---
 
@@ -103,7 +103,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 
 | Rol | Tamaño | Peso | Ejemplo |
 |---|---|---|---|
-| H1 cuestionario | 22 → 26 → 28 px | 700 | "Daniel, Conozcamonos" |
+| H1 cuestionario | 22 → 26 → 28 px | 700 | "Daniel, conozcámonos" |
 | H1 resultados | 26 → 30 → 32 px | 800 | "Tus resultados" |
 | Score gauge | 44 px | 800, `tabular-nums` | "3.4" |
 | Stat grande (tarjeta perfil) | 28 px | 800, `tabular-nums` | "4", "50" |
@@ -114,6 +114,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 | Enunciado Fase 2 | 17 → 19 → 20 px | 500 | "En mi cotidianidad..." |
 | Botón primario | 17 → 18 px | 600 | "Continuar" |
 | Opción de radio | 15 → 16 px | 500 | |
+| Inputs / textarea | 16 px fijo | 400 | evita el zoom automático de iOS |
 | Cuerpo | 14.5 → 15 px | 400, `leading-relaxed` | |
 | Texto secundario | 13–13.5 px | 400–500 | |
 | Badge | 10–12.5 px | 700 | "Medio" |
@@ -130,6 +131,7 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 - Padding de tarjetas: `p-5` (Home), `p-5 sm:p-6 md:p-7` (reglas), `p-4 sm:p-5` (resultados).
 - Logo con 48 px de aire superior (`pt-12`) en el cuestionario.
 - Botones: `py-3.5 sm:py-4 px-9`.
+- **Separación botón ↔ contenido anterior: 32 px en todas las pantallas** (`ButtonRow`, `mt-8`). La fila va como hermana del bloque `space-y-*`, nunca dentro, para que el margen no se sume. En reglas (desktop) la fila comparte línea con Sí/No (`md:mt-0`) y el hueco lo aporta el contenedor (`pt-3` + `space-y-5` = 32 px).
 
 ### 3.4 Radios de borde
 
@@ -192,10 +194,11 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 | `RadioOption` | [ui/RadioOption.tsx](src/components/ui/RadioOption.tsx) | Tarjeta seleccionable (`<motion.label>`): `name`, `value`, `checked`, `onChange`, `label`, `centerOnMobile`; acepta props de `motion` (animación de parpadeo en Fase 2). |
 | `BackButton` | [ui/BackButton.tsx](src/components/ui/BackButton.tsx) | `Button` secundario con flecha `ArrowLeft` + "Volver"; usado en Step1–3 y en las preguntas de Fase 2. |
 | `NextButton` | [ui/NextButton.tsx](src/components/ui/NextButton.tsx) | `Button` primario `type="submit"` con "Siguiente" + `ArrowRight`; acepta `disabled`. Usado en Step1, Step2 y preguntas 1–9 de Fase 2. |
+| `ButtonRow` | [ui/ButtonRow.tsx](src/components/ui/ButtonRow.tsx) | Fila de acciones de pantalla: `mt-8 flex flex-wrap gap-3.5`, `align` start/center. Usada en Step1–3, Fase 2 (intro y preguntas), resultados, actividades, reglas y pantalla de error. |
 | `Card` | [ui/Card.tsx](src/components/ui/Card.tsx) | Superficie única `bg-white rounded-3xl border border-gray-100 shadow-card` (exportada como `CARD_SURFACE`); `flush` quita el padding. Sin variantes. |
 | `LevelBadge` / `StatusBadge` | [ui/Badge.tsx](src/components/ui/Badge.tsx) | Nivel Alto/Medio/Bajo (`size` sm/md) y estado Pendiente/Completada/Incompleta. `getLevel(score)` vive en [lib/levels.ts](src/lib/levels.ts). |
 | `Avatar` | [ui/Avatar.tsx](src/components/ui/Avatar.tsx) | Foto circular; sin `src` muestra el vector predeterminado (`UserRound` en `brand` sobre `brand-100`). Usado en la tarjeta de perfil (con lápiz para cambiar la foto) y en el Ranking. |
-| `Toast` | [ui/Toast.tsx](src/components/ui/Toast.tsx) | `message` (null oculta), `variant`: `dark` \| `success`, `onClose`. `role="status"`. |
+| `Toast` | [ui/Toast.tsx](src/components/ui/Toast.tsx) | `message` (null oculta), `variant`: `dark` \| `success` \| `danger`, `onClose`. `success`/`danger` comparten forma de banner (icono en círculo `white/25` + ✕); `danger` es `bg-danger-500`, icono `TriangleAlert`, `role="alert"`/`aria-live="assertive"`. |
 | `Modal` | [ui/Modal.tsx](src/components/ui/Modal.tsx) | `isOpen`, `onClose`, `labelledBy`, `size` sm/lg. `role="dialog"`, `aria-modal`, Escape, clic fuera, trap de foco y devolución del foco. |
 
 Las clases de referencia de cada primitivo:
@@ -213,13 +216,13 @@ shadow-cta hover:bg-brand-600 active:scale-[0.98] transition-all
 py-3.5 sm:py-4 px-9 rounded-full border border-brand-200 bg-white text-brand font-semibold
 hover:bg-brand-50/50 active:scale-[0.98]
 ```
-- Texto: "Volver" precedido de `ArrowLeft` (componente `BackButton`). Siempre va a la izquierda del primario, `gap-3.5`.
+- Texto: "Volver" precedido de `ArrowLeft` (componente `BackButton`). Siempre va a la izquierda del primario dentro de un `ButtonRow`.
 
 #### Botón compacto (Home)
 `px-6 py-2.5 rounded-full text-[14px] font-semibold bg-brand` → al completar cambia a `bg-success-500`.
 
 #### Botonera flotante (`FloatingNav`)
-`fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border-gray-100 rounded-full shadow-xl shadow-brand/10 p-1.5`. Seis botones circulares con icono Lucide; el activo va `bg-brand text-white shadow-cta`, el resto `text-gray-500` con hover `brand-50`. Destinos: Términos (paso 0), Datos personales (paso 1), Test de felicidad (paso 4), Resultados (paso 15), Actividades (paso 16), Inicio. Botones `w-10` en móvil / `w-11` desde `sm`. Sustituye a las antiguas pills "Volver a la pantalla de inicio" / "Tomar cuestionario / editar". El `main` lleva `pb-28` y los toasts suben a `bottom-24` para no chocar con ella.
+`fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border-gray-100 rounded-full shadow-xl shadow-brand/10 p-1.5`. Siete botones circulares con icono Lucide; el activo va `bg-brand text-white shadow-cta`, el resto `text-gray-500` con hover `brand-50`. Destinos: Términos (paso 0), Datos personales (paso 1), Test de felicidad (paso 4), Resultados (paso 15), Actividades (paso 16), Pantallas de error (`TriangleAlert`), Inicio. Botones `w-10` en móvil / `w-11` desde `sm`. Sustituye a las antiguas pills "Volver a la pantalla de inicio" / "Tomar cuestionario / editar". El `main` lleva `pb-28` y los toasts suben a `bottom-24` para no chocar con ella.
 
 #### Pill de filtro (toggle)
 - Activo: `border border-brand text-brand bg-brand/5 font-semibold`.
@@ -252,6 +255,7 @@ El de fecha lleva un botón absoluto con `<Calendar>` que dispara `showPicker()`
 #### Toast / Snackbar
 - Toast genérico (Home): `fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900/95 text-white px-5 py-3 rounded-2xl backdrop-blur-md` con check verde; desaparece a los 3.5 s.
 - Snackbar de éxito (App): `bg-success-500 text-white px-5 py-3.5 rounded-2xl` con icono check en círculo `bg-white/25` y botón ✕; se muestra 4.5 s al llegar al paso 4.
+- Banner de error: misma forma en `bg-danger-500` con `TriangleAlert`; texto "Algo salió mal. Intenta de nuevo por favor". Persistente hasta cerrarlo (no desaparece solo).
 
 #### Modal
 `fixed inset-0 z-50 bg-black/40 backdrop-blur-xs` + panel `bg-white rounded-3xl p-6 shadow-xl max-w-xs|lg`.
@@ -263,15 +267,15 @@ Altura única `h-2` (8 px) en todas las barras. Track `bg-gray-200 rounded-full`
 
 | Componente | Archivo | Responsabilidad | Detalles visuales clave |
 |---|---|---|---|
-| `App` | [src/App.tsx](src/App.tsx) | Máquina de estados: `viewMode` (`home` \| `survey`) y `currentStep` (0–19, constantes en `STEP`). `renderStep()` con `switch`; `goToStep()` registra la dirección (1/−1) que alimenta las variantes de transición. | Fondo blanco cuando `currentStep === 15`. Contenedor `max-w-lg → 2xl`. |
-| `HapplyLogo` | [src/components/HapplyLogo.tsx](src/components/HapplyLogo.tsx) | Logo SVG inline (wordmark "Happly®" con sonrisa), `fill="currentColor"`. Prop `className`. | Color vía clase de texto (`text-gray-400`). Alturas `h-8/9/11`. |
-| `Header` | [src/components/Header.tsx](src/components/Header.tsx) | Logo + título dinámico `"{nombre}, {sufijo}"` + barra de progreso. | Sufijos: paso 0 "Conoce las reglas", 1–3 "Conozcamonos", 4–14 "midamos tu felicidad en el trabajo", 15 "Tus resultados" (centrado, sin barra). Progreso: 33/66/100 % en Fase 1, `n/10` en Fase 2, vacío en paso 4. |
-| `FloatingNav` | [src/components/FloatingNav.tsx](src/components/FloatingNav.tsx) | Botonera flotante de 6 destinos; recibe `active` y `onNavigate`. `App` traduce el destino a `viewMode`/`currentStep`. | Ver §5.1. |
+| `App` | [src/App.tsx](src/App.tsx) | Máquina de estados: `viewMode` (`home` \| `survey` \| `errors`) y `currentStep` (0–19, constantes en `STEP`). `renderStep()` con `switch`; `goToStep()` registra la dirección (1/−1) que alimenta las variantes de transición. | Fondo blanco cuando `currentStep === 15`. Contenedor `max-w-lg → 2xl`. |
+| `HapplyLogo` | [src/components/HapplyLogo.tsx](src/components/HapplyLogo.tsx) | Logo SVG inline (wordmark "Happly®" con sonrisa), `fill="currentColor"`. `className` solo para posición. | **Tamaño y color únicos** fijados en el componente: `h-9 sm:h-11` (36 → 44 px) y `text-gray-400`, iguales en Home, cuestionario, actividades y pantallas de error. |
+| `Header` | [src/components/Header.tsx](src/components/Header.tsx) | Logo + título dinámico `"{nombre}, {sufijo}"` + barra de progreso. | Sufijos: paso 0 "conoce las reglas", 1–3 "conozcámonos", 4–14 "cuéntanos más de ti" (minúscula tras la coma), 15 "Tus resultados" (centrado, sin barra). Progreso: 33/66/100 % en Fase 1, `n/10` en Fase 2, vacío en paso 4. |
+| `FloatingNav` | [src/components/FloatingNav.tsx](src/components/FloatingNav.tsx) | Botonera flotante de 7 destinos; recibe `active` y `onNavigate`. `App` traduce el destino a `viewMode`/`currentStep`. | Ver §5.1. |
 | `Footer` | [src/components/Footer.tsx](src/components/Footer.tsx) | Copyright + link a términos. Acepta `className`. | `text-xs text-gray-500`, link `text-brand`, `border-t border-gray-100/80`. Usado en App y HomeScreen. |
 | `StepRules` | [src/components/StepRules.tsx](src/components/StepRules.tsx) | Paso 0: precauciones, confidencialidad, política de datos con scroll y pregunta Sí/No. | Dos `Card` con icono Lucide (`Eye`, `BadgeCheck`, stroke 1.5), en `md:grid-cols-2`; fila final `md:flex justify-between` con Sí/No a la izquierda y "Continuar" a la derecha. Caja legal (`Card` de `h-44/52/56`) con **scrollbar custom siempre visible** (track `#EDE8F7`, thumb morado, calculado en JS). Aviso ámbar si responde "No". |
 | `Step1` | [src/components/Step1.tsx](src/components/Step1.tsx) | Datos demográficos: género (3 cols), fecha, pareja, profesión, hijos. | Input numérico estrecho `w-24 sm:w-28`. |
 | `Step2` | [src/components/Step2.tsx](src/components/Step2.tsx) | 4 preguntas Sí/No + preferencia laboral (radio apilado). | Helper `renderYesNoQuestion`. |
-| `Step3` | [src/components/Step3.tsx](src/components/Step3.tsx) | Preferencia laboral (3 opciones). Botón "Terminar". | Layout `flex-grow justify-between` para empujar los botones abajo. |
+| `Step3` | [src/components/Step3.tsx](src/components/Step3.tsx) | Preferencia laboral (3 opciones). Botón "Terminar". | Botones a 32 px del contenido (`ButtonRow`), ya no anclados abajo. |
 | `StepPhase2Intro` | [src/components/StepPhase2Intro.tsx](src/components/StepPhase2Intro.tsx) | Ilustración + instrucciones para la Fase 2. | Desde `md`: ilustración a la izquierda (`shrink-0`) y título + bullets a la derecha; nota y "Empezar" debajo a todo el ancho. Composición: blob lavanda orgánico (`rounded-[48%_52%_45%_55%/…]`) + acento amarillo rotado + retrato circular recortado. Título en color brand. Bullets con puntos `w-1.5 h-1.5 bg-gray-500`. |
 | `StepPhase2Question` | [src/components/StepPhase2Question.tsx](src/components/StepPhase2Question.tsx) | Pregunta genérica de Fase 2 (10 bloques de 4 afirmaciones). | **Auto‑avance** 520 ms tras seleccionar, con animación de "parpadeo" (`scale` y `backgroundColor` en keyframes). Botón submit deshabilitado hasta responder. |
 | `ResultsSummary` | [src/components/ResultsSummary.tsx](src/components/ResultsSummary.tsx) | Paso 15: gauge SVG, texto general expandible, 3 tarjetas de sub‑dimensión, modal de confirmación. | Gauge: arco de 260° (140°→400°), r=85, stroke 8, gradiente `danger-500 → warning-500 → success-500`, knob blanco con `feDropShadow`. Score y knob animados con `requestAnimationFrame` + easeOutCubic (1.3 s). "Leer más/menos" con altura animada + crossfade (`ExpandableText`) y chevron rotando 180°. |
@@ -281,6 +285,8 @@ Altura única `h-2` (8 px) en todas las barras. Track `bg-gray-200 rounded-full`
 | `ProgramTab` | [src/components/ProgramTab.tsx](src/components/ProgramTab.tsx) | Acordeón de 3 niveles (programa → semana → actividad) generado desde `PROGRAMS` (datos), con `Collapsible` y `ActivityRow` internos. | `Card flush`. Chevrons stroke 2.5. Items con icono de estado (`Clock` gris, `CheckCircle2` verde, `XCircle` rojo). Altura animada con `motion` (`height: 0 → auto`, 200 ms). |
 | `AchievementsTab` | [src/components/AchievementsTab.tsx](src/components/AchievementsTab.tsx) | Tarjeta de racha (3 stats, sin título) + tarjeta "Logros" de 25 insignias en `grid-cols-4`. Recibe `stats` y cada insignia decide `unlockedWhen(stats)`. | Stats en `gray-900`, 28 px extrabold, `divide-x`. Insignia bloqueada: círculo `w-14 sm:w-16`, `border-2 border-gray-100`, icono `gray-400`, etiqueta 12 px `gray-400` truncada. Desbloqueada: `bg-warning-500` sólido, icono blanco, `shadow-lg shadow-warning-500/30`, etiqueta `text-brand`. Contador "N logros desbloqueados" en `brand`. |
 | `LeaderboardTab` | [src/components/LeaderboardTab.tsx](src/components/LeaderboardTab.tsx) | Ranking de 6 usuarios, sin título (la tab ya lo nombra). | `MedalBadge` para top 3 (círculo + cinta SVG con clases `bg-warning-*`/`fill-*`), número para el resto. Fila: rank + `Avatar` 40 px + nombre + "200 PTS". |
+| `LoadErrorScreen` | [src/components/LoadErrorScreen.tsx](src/components/LoadErrorScreen.tsx) | Pantalla de error: no cargó la primera parte de "Conozcámonos". Segunda de la secuencia `ERROR_SCREENS`. Fuera del flujo normal. | `Header` real del paso 1 (título + progreso 33 %), esqueleto de 4 preguntas (`gray-100` para etiquetas, `gray-50` para campos, `aria-hidden`) y `Toast` `danger` persistente; sin botones en el fondo. |
+| `SuspendedActivityScreen` | [src/components/SuspendedActivityScreen.tsx](src/components/SuspendedActivityScreen.tsx) | Pantalla de error "Actividad suspendida" (máximo de intentos alcanzado). Primera de la secuencia `ERROR_SCREENS` en `App`, accesible desde el botón "Pantallas de error" de la botonera; no está ligada a ninguna lógica de negocio. | Fondo `.bg-form`, logo arriba, `Card` centrada vertical y horizontalmente (`role="alert"`): círculo `brand-100` de 112–128 px con `AlarmClock` en `brand`, título 24→28 px bold `brand-900`, párrafo `gray-700`, botón `Cerrar` (`Button` md). |
 | `TermsModal` | [src/components/TermsModal.tsx](src/components/TermsModal.tsx) | Modal de términos y condiciones. | Icono `ShieldCheck` en cuadrado `bg-brand-100 rounded-2xl`, aviso con `Lock`, 3 secciones con `FileText`. `max-h-[90vh] overflow-y-auto`. |
 
 ---
@@ -288,7 +294,8 @@ Altura única `h-2` (8 px) en todas las barras. Track `bg-gray-200 rounded-full`
 ## 6. Pantallas y flujo
 
 ```
-Home (dashboard) ◀──── FloatingNav (6 atajos) ────▶ Cuestionario
+Home (dashboard) ◀──── FloatingNav (7 atajos) ────▶ Cuestionario
+                                              └── Pantallas de error (secuencia; "Cerrar" pasa a la siguiente y la última vuelve a Home)
                                               │
    paso 0  Reglas y política ─── acepta ──▶ paso 1  Datos personales   (33 %)
                                               paso 2  Contexto / apoyo  (66 %)
@@ -304,7 +311,7 @@ Home (dashboard) ◀──── FloatingNav (6 atajos) ────▶ Cuestion
 
 Orden vertical en móvil (en `lg+` el punto 3 vive en un `aside` sticky a la izquierda y del 4 en adelante en la columna derecha):
 
-1. Logo centrado (`h-8 sm:h-9`, `gray-400`).
+1. Logo centrado (mismo tamaño que en el resto de pantallas: `h-9 sm:h-11`).
 3. **Tarjeta de perfil morada** (`bg-brand rounded-3xl p-5 sm:p-6`): `Avatar` 40 px con borde `white/60` y botón lápiz para subir una foto (vector predeterminado si no hay), nombre 17 px semibold, "Progreso general 30 %" con barra blanca animada (0→30 % en 0.8 s), dropdown de notificaciones (Mail/WhatsApp, `bg-white/20 backdrop-blur-xs`), grid 3 stats (`bg-white/20 rounded-2xl border-white/10`): Racha, Puntos, Ánimo. Un círculo `bg-white/10 blur-xl` en la esquina como brillo decorativo.
 4. **Tabs** Inicio / Programa / Logros / Ranking (`justify-between` en móvil, `lg:justify-start lg:gap-10` en desktop): `text-[14px] sm:text-[15px]`, activa en morado semibold con subrayado `h-[2.5px]` animado por `layoutId="activeTabIndicator"`.
 5. Contenido de la tab:

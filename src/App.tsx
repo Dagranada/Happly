@@ -24,8 +24,13 @@ import { HomeScreen } from './components/HomeScreen';
 import { TermsModal } from './components/TermsModal';
 import { FloatingNav, type NavTarget } from './components/FloatingNav';
 import { Toast } from './components/ui/Toast';
+import { ActivityCelebrationFlow } from './components/ActivityCelebrationFlow';
+import { useGamification } from './lib/useGamification';
+import type { CompletionResult } from './types/gamification';
 
-/* Mapa de pasos (DESIGN.md §6) */
+/* Mapa de pasos (DESIGN.md §6). Solo queda una actividad de muestra al
+   cierre del cuestionario (ver data/activities.ts): al enviarla se completa
+   la actividad real "de hoy" y se muestra el flujo de progreso. */
 const STEP = {
   RULES: 0,
   PHASE1_FIRST: 1,
@@ -35,7 +40,7 @@ const STEP = {
   PHASE2_LAST: 14,
   RESULTS: 15,
   ACTIVITY_FIRST: 16,
-  ACTIVITY_LAST: 19,
+  ACTIVITY_LAST: 16,
 } as const;
 
 const SNACKBAR_MS = 4500;
@@ -75,6 +80,8 @@ export default function App() {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<string | null>(null);
+  const gamification = useGamification();
+  const [celebration, setCelebration] = useState<CompletionResult | null>(null);
 
   const openTerms = useCallback(() => setIsTermsOpen(true), []);
 
@@ -161,9 +168,24 @@ export default function App() {
   if (viewMode === 'home') {
     return (
       <>
-        <HomeScreen formData={formData} initialTab="Home" onOpenTerms={openTerms} />
+        <HomeScreen
+          formData={formData}
+          initialTab="Home"
+          onOpenTerms={openTerms}
+          gamification={gamification}
+          onCelebrate={setCelebration}
+        />
         <FloatingNav active={activeNav} onNavigate={handleNavigate} />
         <TermsModal isOpen={isTermsOpen} onClose={closeTerms} />
+        {celebration && (
+          <ActivityCelebrationFlow
+            result={celebration}
+            streakCount={gamification.streakCount}
+            completedDays={gamification.completedDays}
+            simDay={gamification.simDay}
+            onDone={() => setCelebration(null)}
+          />
+        )}
       </>
     );
   }
@@ -238,6 +260,22 @@ export default function App() {
           const idx = currentStep - STEP.ACTIVITY_FIRST;
           const activity = ACTIVITIES[idx];
           const isLast = currentStep === STEP.ACTIVITY_LAST;
+
+          const handleFinishActivity = () => {
+            if (!isLast) {
+              goToStep(currentStep + 1);
+              return;
+            }
+            const answer = formData.activityAnswers[activity.id] ?? EMPTY_ANSWER;
+            const today = gamification.todayActivity;
+            const result =
+              today && answer.mood !== null
+                ? gamification.completeActivity(today.id, { text: answer.text, mood: answer.mood })
+                : null;
+            if (result) setCelebration(result);
+            else setViewMode('home');
+          };
+
           return (
             <motion.div key={`activity${idx}`} {...stepMotion}>
               <ActivityStep
@@ -246,7 +284,7 @@ export default function App() {
                 total={ACTIVITIES.length}
                 answer={formData.activityAnswers[activity.id] ?? EMPTY_ANSWER}
                 onChange={(a) => setActivityAnswer(activity.id, a)}
-                onNext={() => (isLast ? setViewMode('home') : goToStep(currentStep + 1))}
+                onNext={handleFinishActivity}
                 onBack={idx > 0 ? () => goToStep(currentStep - 1) : undefined}
               />
             </motion.div>
@@ -290,6 +328,19 @@ export default function App() {
       <Toast message={snackbar} variant="success" onClose={() => setSnackbar(null)} />
 
       <TermsModal isOpen={isTermsOpen} onClose={closeTerms} />
+
+      {celebration && (
+        <ActivityCelebrationFlow
+          result={celebration}
+          streakCount={gamification.streakCount}
+          completedDays={gamification.completedDays}
+          simDay={gamification.simDay}
+          onDone={() => {
+            setCelebration(null);
+            setViewMode('home');
+          }}
+        />
+      )}
     </div>
   );
 }

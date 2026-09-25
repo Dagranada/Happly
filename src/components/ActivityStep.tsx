@@ -1,10 +1,11 @@
 import React from 'react';
-import { Frown, Annoyed, Meh, Smile, Laugh, Send, type LucideIcon } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Activity } from '../data/activities';
-import { ActivityAnswer, Mood } from '../types';
+import { ActivityAnswer } from '../types';
 import { Button } from './ui/Button';
 import { BackButton } from './ui/BackButton';
 import { ButtonRow } from './ui/ButtonRow';
+import { MoodPicker } from './ui/MoodPicker';
 
 interface ActivityStepProps {
   activity: Activity;
@@ -15,14 +16,6 @@ interface ActivityStepProps {
   onNext: () => void;
   onBack?: () => void;
 }
-
-const MOODS: { value: Mood; label: string; Icon: LucideIcon }[] = [
-  { value: 1, label: 'Muy mal', Icon: Frown },
-  { value: 2, label: 'Mal', Icon: Annoyed },
-  { value: 3, label: 'Neutral', Icon: Meh },
-  { value: 4, label: 'Bien', Icon: Smile },
-  { value: 5, label: 'Muy bien', Icon: Laugh },
-];
 
 export const ActivityStep: React.FC<ActivityStepProps> = ({
   activity,
@@ -70,42 +63,11 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
         />
       </div>
 
-      <fieldset className="space-y-3">
-        <legend className="text-[15px] sm:text-[16px] text-gray-800 font-medium">
-          ¿Cómo te sentiste realizando esta actividad?
-        </legend>
-        <div className="flex items-start justify-between md:justify-start md:gap-8 max-w-sm">
-          {MOODS.map(({ value, label, Icon }) => {
-            const selected = answer.mood === value;
-            const showLabel = value === 1 || value === 5;
-            return (
-              <label key={value} className="relative flex flex-col items-center gap-1.5 cursor-pointer group touch-manipulation">
-                <input
-                  type="radio"
-                  name={`mood-${activity.id}`}
-                  value={value}
-                  checked={selected}
-                  onChange={() => onChange({ ...answer, mood: value })}
-                  className="sr-only peer"
-                  aria-label={label}
-                />
-                <Icon
-                  className={`w-9 h-9 stroke-[1.8] transition-all rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 ${
-                    selected ? 'text-brand scale-110' : 'text-gray-800 group-hover:text-brand'
-                  }`}
-                  aria-hidden="true"
-                />
-                <span
-                  className={`text-[12px] leading-none h-3 ${showLabel ? 'text-gray-500' : 'invisible'}`}
-                  aria-hidden={!showLabel}
-                >
-                  {label}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
+      <MoodPicker
+        name={`mood-${activity.id}`}
+        value={answer.mood}
+        onChange={(mood) => onChange({ ...answer, mood })}
+      />
 
       </div>
 

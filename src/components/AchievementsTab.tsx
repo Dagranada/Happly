@@ -1,117 +1,76 @@
 import React from 'react';
-import { Flame, Star, Award, Trophy, Heart, Zap, Crown, type LucideIcon } from 'lucide-react';
+import { Award } from 'lucide-react';
 import { Card } from './ui/Card';
+import { MedalIcon } from './ui/MedalIcon';
+import { TrophyBadge } from './ui/TrophyBadge';
+import { trophyColorClass } from '../lib/trophyColors';
+import type { DashboardProgram } from '../types/gamification';
 
-export interface AchievementStats {
-  streak: number;
-  bestStreak: number;
-  points: number;
-  activitiesDone: number;
-  intentionSaved: boolean;
+interface AchievementsTabProps {
+  program: DashboardProgram;
+  otherPrograms: DashboardProgram[];
 }
 
-interface Achievement {
-  id: string;
-  label: string;
-  Icon: LucideIcon;
-  unlockedWhen: (s: AchievementStats) => boolean;
-}
-
-const never = () => false;
-
-/* Catálogo de insignias (orden = orden visual, 4 por fila) */
-const ACHIEVEMENTS: Achievement[] = [
-  { id: 'first-activity', label: 'Primera actividad', Icon: Star, unlockedWhen: (s) => s.activitiesDone >= 1 },
-  { id: 'streak-7', label: 'Racha de 7', Icon: Flame, unlockedWhen: (s) => s.bestStreak >= 7 },
-  { id: 'streak-14', label: 'Racha de 14', Icon: Flame, unlockedWhen: (s) => s.bestStreak >= 14 },
-  { id: 'streak-30', label: 'Racha de 30', Icon: Flame, unlockedWhen: (s) => s.bestStreak >= 30 },
-  { id: 'activities-10', label: '10 actividades', Icon: Award, unlockedWhen: (s) => s.activitiesDone >= 10 },
-  { id: 'activities-25', label: '25 actividades', Icon: Award, unlockedWhen: (s) => s.activitiesDone >= 25 },
-  { id: 'activities-50', label: '50 actividades', Icon: Award, unlockedWhen: (s) => s.activitiesDone >= 50 },
-  { id: 'level-1', label: 'Primer nivel', Icon: Trophy, unlockedWhen: never },
-  { id: 'level-3', label: '3 niveles completados', Icon: Trophy, unlockedWhen: never },
-  { id: 'level-5', label: '5 niveles completados', Icon: Trophy, unlockedWhen: never },
-  // Desbloqueado de ejemplo (demo), como en el diseño de referencia
-  { id: 'active-voice', label: 'Voz activa', Icon: Heart, unlockedWhen: () => true },
-  { id: 'points-100', label: '100 puntos', Icon: Zap, unlockedWhen: (s) => s.points >= 100 },
-  { id: 'points-500', label: '500 puntos', Icon: Zap, unlockedWhen: (s) => s.points >= 500 },
-  { id: 'profile-pioneer', label: 'Perfil pionero', Icon: Crown, unlockedWhen: never },
-  { id: 'profile-featured', label: 'Perfil destacado', Icon: Trophy, unlockedWhen: never },
-  { id: 'profile-fit', label: 'Perfil en forma', Icon: Award, unlockedWhen: never },
-  { id: 'voice-pioneer', label: 'Voz pionera', Icon: Crown, unlockedWhen: never },
-  { id: 'voice-featured', label: 'Voz destacada', Icon: Trophy, unlockedWhen: never },
-  { id: 'voice-constant', label: 'Voz constante', Icon: Award, unlockedWhen: never },
-  { id: 'rise', label: 'Ascenso laboral', Icon: Crown, unlockedWhen: never },
-  { id: 'tracker', label: 'Rastreador', Icon: Trophy, unlockedWhen: never },
-  { id: 'climber', label: 'Escalador', Icon: Award, unlockedWhen: never },
-  { id: 'strategist', label: 'Estratega', Icon: Crown, unlockedWhen: never },
-  { id: 'pursuer', label: 'Perseguidor', Icon: Trophy, unlockedWhen: never },
-  { id: 'competitor', label: 'Competidor', Icon: Award, unlockedWhen: never },
-];
-
-const STAT_NUMBER = 'text-[28px] font-extrabold leading-none tabular-nums';
-const STAT_LABEL = 'text-[13px] font-medium text-gray-600 mt-1.5';
-
-export const AchievementsTab: React.FC<{ stats: AchievementStats }> = ({ stats }) => {
-  const unlockedCount = ACHIEVEMENTS.filter((a) => a.unlockedWhen(stats)).length;
+export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, otherPrograms }) => {
+  const allPrograms = [program, ...otherPrograms];
+  const allProgramIds = allPrograms.map((p) => p.id);
+  const medalsEarned = program.weeks.filter((w) => w.medalEarned).length;
+  const medalsToGo = Math.max(0, 3 - medalsEarned);
+  const trophyHistory = allPrograms.filter((p) => p.trophyEarned);
 
   return (
     <div className="space-y-4 pt-1">
-      {/* Racha de actividad */}
-      <Card>
-        <dl className="grid grid-cols-3 divide-x divide-gray-100 text-center" aria-label="Racha de actividad">
-          <div className="px-2">
-            <dd className={`${STAT_NUMBER} text-gray-900`}>{stats.streak}</dd>
-            <dt className={STAT_LABEL}>Racha actual</dt>
-          </div>
-          <div className="px-2">
-            <dd className={`${STAT_NUMBER} text-gray-900`}>{stats.bestStreak}</dd>
-            <dt className={STAT_LABEL}>Mejor racha</dt>
-          </div>
-          <div className="px-2">
-            <dd className={`${STAT_NUMBER} text-gray-900`}>{stats.points}</dd>
-            <dt className={STAT_LABEL}>Puntos</dt>
-          </div>
-        </dl>
-      </Card>
+      {/* Medallas de la semana */}
+      <Card className="space-y-4">
+        <h3 className="text-[16px] font-bold text-gray-900">Medallas de la semana</h3>
 
-      {/* Insignias */}
-      <Card className="space-y-5">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-[16px] font-bold text-gray-900">Logros</h3>
-          <span className="text-[13px] font-medium text-brand">
-            {unlockedCount} {unlockedCount === 1 ? 'logro desbloqueado' : 'logros desbloqueados'}
-          </span>
+        <div className="flex items-start justify-between">
+          {program.weeks.map((week, i) => (
+            <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
+              <MedalIcon size="lg" earned={week.medalEarned} label={<Award className="w-6 h-6" />} />
+              <span className={`text-[11px] ${week.medalEarned ? 'text-brand font-medium' : 'text-gray-400'}`}>
+                Semana {i + 1}
+              </span>
+            </div>
+          ))}
         </div>
 
-        <ul className="grid grid-cols-4 lg:grid-cols-5 gap-x-2 gap-y-5" aria-label="Insignias">
-          {ACHIEVEMENTS.map(({ id, label, Icon, unlockedWhen }) => {
-            const unlocked = unlockedWhen(stats);
-            return (
-              <li key={id} className="flex flex-col items-center text-center min-w-0">
-                <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all ${
-                    unlocked
-                      ? 'bg-warning-500 text-white shadow-lg shadow-warning-500/30'
-                      : 'border-2 border-gray-100 text-gray-400'
-                  }`}
-                  aria-hidden="true"
-                >
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.6]" />
+        {!program.trophyEarned && (
+          <div className="flex items-center gap-3.5 border-t border-gray-100 pt-4">
+            <TrophyBadge earned={false} size="lg" />
+            <div>
+              <p className="text-[14px] font-semibold text-gray-900">{program.title}</p>
+              <p className="text-[12.5px] text-gray-500">
+                {medalsToGo} medalla{medalsToGo === 1 ? '' : 's'} para ganar esta copa
+              </p>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Historial de copas ganadas */}
+      <Card className="space-y-4">
+        <h3 className="text-[16px] font-bold text-gray-900">Historial de copas ganadas</h3>
+
+        {trophyHistory.length > 0 ? (
+          <ul className="divide-y divide-gray-100" aria-label="Copas ganadas">
+            {trophyHistory.map((p) => (
+              <li key={p.id} className="flex items-center gap-3.5 py-4 first:pt-0 last:pb-0">
+                <TrophyBadge earned size="lg" colorClass={trophyColorClass(allProgramIds, p.id)} />
+                <div className="min-w-0">
+                  <p className="text-[15px] font-bold text-gray-900 leading-snug">{p.title}</p>
+                  <p className="text-[12.5px] text-gray-500 mt-1 leading-relaxed">Aprendiste: {p.skillLearned}</p>
+                  {p.trophyWonOn && <p className="text-[11px] text-gray-400 mt-2">{p.trophyWonOn}</p>}
                 </div>
-                <span
-                  className={`mt-2 w-full text-[12px] leading-tight truncate ${
-                    unlocked ? 'text-brand font-medium' : 'text-gray-400'
-                  }`}
-                  title={label}
-                >
-                  {label}
-                </span>
-                <span className="sr-only">{unlocked ? 'desbloqueado' : 'bloqueado'}</span>
               </li>
-            );
-          })}
-        </ul>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-[13.5px] text-gray-500 leading-relaxed">
+            Aún no has ganado ninguna copa. Por ejemplo, al completar "{program.title}" aprenderás a{' '}
+            {program.skillLearned.replace(/\.$/, '')}.
+          </p>
+        )}
       </Card>
     </div>
   );

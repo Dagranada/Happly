@@ -7,7 +7,10 @@ import { FormData } from '../types';
 import { ProgramTab } from './ProgramTab';
 import { LeaderboardTab } from './LeaderboardTab';
 import { AchievementsTab } from './AchievementsTab';
+import { ActivityDetailScreen } from './ActivityDetailScreen';
 import { getLevel } from '../lib/levels';
+import type { Gamification } from '../lib/useGamification';
+import type { DashboardActivity, CompletionResult } from '../types/gamification';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { LevelBadge } from './ui/Badge';
@@ -62,7 +65,6 @@ const FILTERS: { id: FilterType; label: string }[] = [
 
 /* Datos de demostración */
 const DEMO = {
-  progress: 30,
   generalScore: 3.4,
   subScores: [
     { label: 'Gratificación', value: 3.4 },
@@ -87,22 +89,28 @@ interface HomeScreenProps {
   formData?: FormData;
   onOpenTerms: () => void;
   initialTab?: TabType;
+  gamification: Gamification;
+  onCelebrate: (result: CompletionResult) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, initialTab = 'Home' }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({
+  formData,
+  onOpenTerms,
+  initialTab = 'Home',
+  gamification,
+  onCelebrate,
+}) => {
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [activeFilter, setActiveFilter] = useState<FilterType>('general');
   const [intentionText, setIntentionText] = useState('');
   const [savedIntention, setSavedIntention] = useState<string | null>(null);
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<NotificationChannel>('Mail');
-  const [activityCompleted, setActivityCompleted] = useState(false);
-  const [streakCount, setStreakCount] = useState(4);
-  const [bestStreak, setBestStreak] = useState(4);
-  const [pointsCount, setPointsCount] = useState(50);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const [activeActivity, setActiveActivity] = useState<DashboardActivity | null>(null);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,30 +147,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
     if (!intentionText.trim()) return;
     setSavedIntention(intentionText.trim());
     setIntentionText('');
-    setPointsCount((prev) => prev + 10);
+    gamification.addPoints(10);
     showToast('¡Intención guardada con éxito! +10 pts 🎉');
-  };
-
-  const handlePerformActivity = () => {
-    if (activityCompleted) {
-      showToast('Ya has completado tu actividad de hoy');
-      return;
-    }
-    setActivityCompleted(true);
-    setPointsCount((prev) => prev + 25);
-    setStreakCount((prev) => {
-      const next = prev + 1;
-      setBestStreak((best) => Math.max(best, next));
-      return next;
-    });
-    showToast('¡Actividad del día completada! +25 pts ⭐️');
   };
 
   const userName = formData?.userName?.trim() || 'Alejandro Gómez';
 
   const stats = [
-    { label: 'Racha', value: <>{streakCount}</> },
-    { label: 'Puntos', value: <>{pointsCount}</> },
+    { label: 'Racha', value: <>{gamification.streakCount}</> },
+    { label: 'Puntos', value: <>{gamification.pointsCount}</> },
     { label: 'Ánimo', value: <Smile className="w-7 h-7 text-white stroke-[1.8] mb-1" aria-label="Ánimo" /> },
   ];
 
@@ -216,18 +209,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between text-[17px] font-bold text-white tracking-tight">
                   <span>Progreso general</span>
-                  <span>{DEMO.progress}%</span>
+                  <span>{gamification.progressPercent}%</span>
                 </div>
                 <div
                   role="progressbar"
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  aria-valuenow={DEMO.progress}
+                  aria-valuenow={gamification.progressPercent}
                   className="w-full h-2 bg-white/30 rounded-full overflow-hidden"
                 >
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${DEMO.progress}%` }}
+                    animate={{ width: `${gamification.progressPercent}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                     className="h-full bg-white rounded-full"
                   />
@@ -362,21 +355,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
             </div>
 
             {activeTab === 'Program' && (
-              <ProgramTab onPerformActivity={(title) => showToast(`Actividad iniciada: ${title}`)} />
+              <ProgramTab
+                program={gamification.program}
+                otherPrograms={gamification.otherPrograms}
+                onOpenActivity={setActiveActivity}
+              />
             )}
 
-            {activeTab === 'Leaderboard' && <LeaderboardTab />}
+            {activeTab === 'Leaderboard' && (
+              <LeaderboardTab currentUser={{ name: userName, points: gamification.pointsCount, avatarUrl }} />
+            )}
 
             {activeTab === 'Achievements' && (
-              <AchievementsTab
-                stats={{
-                  streak: streakCount,
-                  bestStreak,
-                  points: pointsCount,
-                  activitiesDone: activityCompleted ? 1 : 0,
-                  intentionSaved: savedIntention !== null,
-                }}
-              />
+              <AchievementsTab program={gamification.program} otherPrograms={gamification.otherPrograms} />
             )}
 
             {activeTab === 'Home' && (
@@ -387,27 +378,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
                     <ClipboardCheck className="w-5 h-5 text-gray-600 stroke-[1.8]" />
                     Tu actividad de hoy
                   </h3>
-                  <div>
-                    <h4 className="text-[16px] font-bold text-gray-900 leading-snug">
-                      Día 5. Agradecer en una palabra
-                    </h4>
-                    <p className="text-[12.5px] text-gray-400 font-normal mt-0.5">
-                      Programada el 22 de mayo de 2026, 12:00 a. m.
+                  {gamification.todayActivity ? (
+                    <>
+                      <div>
+                        <h4 className="text-[16px] font-bold text-gray-900 leading-snug">
+                          {gamification.todayActivity.dayLabel}. {gamification.todayActivity.title}
+                        </h4>
+                        <p className="text-[12.5px] text-gray-400 font-normal mt-0.5">
+                          {gamification.todayActivity.dateLabel}
+                        </p>
+                      </div>
+                      <div className="pt-1">
+                        <Button
+                          size="md"
+                          onClick={() => setActiveActivity(gamification.todayActivity)}
+                          className="text-[14px] shadow-sm shadow-brand/25"
+                        >
+                          Realizar actividad
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-[14px] text-gray-600">
+                      ¡Completaste todas las actividades de este programa! 🎉
                     </p>
-                  </div>
-                  <div className="pt-1">
-                    <Button
-                      size="md"
-                      onClick={handlePerformActivity}
-                      className={`text-[14px] shadow-sm ${
-                        activityCompleted
-                          ? 'bg-success-500 hover:bg-success-500 shadow-success-500/20'
-                          : 'shadow-brand/25'
-                      }`}
-                    >
-                      {activityCompleted ? '✓ Actividad completada' : 'Realizar actividad'}
-                    </Button>
-                  </div>
+                  )}
                 </Card>
 
                 {/* Intención semanal */}
@@ -560,6 +555,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ formData, onOpenTerms, i
       </main>
 
       <Footer onOpenTerms={onOpenTerms} className="relative z-10 pb-24" />
+
+      <AnimatePresence>
+        {activeActivity && (
+          <ActivityDetailScreen
+            key="activity-detail"
+            activity={activeActivity}
+            onClose={() => setActiveActivity(null)}
+            onSubmit={(answer) => {
+              const result = gamification.completeActivity(activeActivity.id, answer);
+              setActiveActivity(null);
+              if (result) onCelebrate(result);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

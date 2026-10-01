@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FormData, INITIAL_FORM_DATA, ActivityAnswer } from './types';
 import { PHASE_2_QUESTIONS } from './data/phase2Questions';
-import { ACTIVITIES } from './data/activities';
+import { ACTIVITIES, ACTIVITIES_SHOWN_TOTAL } from './data/activities';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { StepRules } from './components/StepRules';
@@ -181,8 +181,6 @@ export default function App() {
           <ActivityCelebrationFlow
             result={celebration}
             streakCount={gamification.streakCount}
-            completedDays={gamification.completedDays}
-            simDay={gamification.simDay}
             onDone={() => setCelebration(null)}
           />
         )}
@@ -281,7 +279,7 @@ export default function App() {
               <ActivityStep
                 activity={activity}
                 index={idx}
-                total={ACTIVITIES.length}
+                total={ACTIVITIES_SHOWN_TOTAL}
                 answer={formData.activityAnswers[activity.id] ?? EMPTY_ANSWER}
                 onChange={(a) => setActivityAnswer(activity.id, a)}
                 onNext={handleFinishActivity}
@@ -333,8 +331,6 @@ export default function App() {
         <ActivityCelebrationFlow
           result={celebration}
           streakCount={gamification.streakCount}
-          completedDays={gamification.completedDays}
-          simDay={gamification.simDay}
           onDone={() => {
             setCelebration(null);
             setViewMode('home');

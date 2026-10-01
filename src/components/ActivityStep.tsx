@@ -1,5 +1,4 @@
 import React from 'react';
-import { Send } from 'lucide-react';
 import { Activity } from '../data/activities';
 import { ActivityAnswer } from '../types';
 import { Button } from './ui/Button';
@@ -74,8 +73,7 @@ export const ActivityStep: React.FC<ActivityStepProps> = ({
       <ButtonRow>
         {onBack && <BackButton onClick={onBack} />}
         <Button type="submit" disabled={!canContinue}>
-          Enviar
-          <Send className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
+          Siguiente
         </Button>
       </ButtonRow>
     </form>

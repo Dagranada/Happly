@@ -1,7 +1,6 @@
 import React from 'react';
-import { Award } from 'lucide-react';
 import { Card } from './ui/Card';
-import { MedalIcon } from './ui/MedalIcon';
+import { LevelMedal } from './ui/LevelMedal';
 import { TrophyBadge } from './ui/TrophyBadge';
 import { trophyColorClass } from '../lib/trophyColors';
 import type { DashboardProgram } from '../types/gamification';
@@ -20,16 +19,16 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
 
   return (
     <div className="space-y-4 pt-1">
-      {/* Medallas de la semana */}
+      {/* Medallas por nivel */}
       <Card className="space-y-4">
-        <h3 className="text-[16px] font-bold text-gray-900">Medallas de la semana</h3>
+        <h3 className="text-[16px] font-bold text-gray-900">Medallas por nivel</h3>
 
         <div className="flex items-start justify-between">
           {program.weeks.map((week, i) => (
             <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
-              <MedalIcon size="lg" earned={week.medalEarned} label={<Award className="w-6 h-6" />} />
+              <LevelMedal size="lg" tone="light" earned={week.medalEarned} />
               <span className={`text-[11px] ${week.medalEarned ? 'text-brand font-medium' : 'text-gray-400'}`}>
-                Semana {i + 1}
+                Nivel {i + 1}
               </span>
             </div>
           ))}

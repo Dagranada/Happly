@@ -3,9 +3,7 @@ import type { ActivityAnswer } from '../types';
 import type { CompletionResult, DashboardActivity, DashboardProgram } from '../types/gamification';
 import { CURRENT_PROGRAM, OTHER_PROGRAMS } from '../data/program';
 
-/** Medalla semanal: completar al menos 3 de las 5 actividades de la semana. */
-const WEEKLY_MEDAL_MIN = 3;
-/** Trofeo mensual: ganar al menos 3 de las 4 medallas semanales del programa. */
+/** Trofeo mensual: ganar al menos 3 de las 4 medallas de nivel del programa. */
 const MONTHLY_TROPHY_MIN_MEDALS = 3;
 
 function cloneProgram(program: DashboardProgram): DashboardProgram {
@@ -25,7 +23,7 @@ function flatten(program: DashboardProgram): DashboardActivity[] {
 /**
  * El trofeo "completa" el mes para efectos de la barra: una vez se gana,
  * la barra general marca 100% aunque falten actividades sueltas por hacer,
- * igual que la medalla semanal no exige el 5/5 sino un mínimo (3/5).
+ * igual que la medalla de nivel no exige todas las actividades sino un mínimo.
  */
 function progressPercentOf(program: DashboardProgram): number {
   if (program.trophyEarned) return 100;
@@ -102,7 +100,7 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
 
       const doneInWeek = week.activities.filter((a) => a.status === 'completada').length;
       const prevMedal = week.medalEarned;
-      week.medalEarned = doneInWeek >= WEEKLY_MEDAL_MIN;
+      week.medalEarned = doneInWeek >= week.medalMin;
       const medalNewlyEarned = week.medalEarned && !prevMedal && !week.medalCelebrated;
       if (medalNewlyEarned) week.medalCelebrated = true;
 
@@ -127,6 +125,12 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
 
       return {
         pointsEarned: activity.points,
+        weeks: next.weeks.map((w) => ({
+          title: w.title,
+          done: w.activities.filter((a) => a.status === 'completada').length,
+          required: w.medalMin,
+          medalEarned: w.medalEarned,
+        })),
         prevProgress,
         newProgress,
         medalNewlyEarned,

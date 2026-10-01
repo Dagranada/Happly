@@ -20,6 +20,8 @@ export interface DashboardWeek {
   id: string;
   title: string;
   activities: DashboardActivity[];
+  /** Actividades que hay que completar para ganar la medalla del nivel (varía entre 2 y 5). */
+  medalMin: number;
   medalEarned: boolean;
   /** Evita repetir la pantalla de medalla una vez ya mostrada. */
   medalCelebrated: boolean;
@@ -37,8 +39,18 @@ export interface DashboardProgram {
   trophyWonOn?: string;
 }
 
+export interface CompletionWeekSummary {
+  title: string;
+  done: number;
+  /** Actividades requeridas para la medalla de este nivel. */
+  required: number;
+  medalEarned: boolean;
+}
+
 export interface CompletionResult {
   pointsEarned: number;
+  /** Estado de cada semana del programa tras completar la actividad. */
+  weeks: CompletionWeekSummary[];
   prevProgress: number;
   newProgress: number;
   medalNewlyEarned: boolean;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, Clock, CheckCircle2, XCircle, ArrowRight, Smile, Award } from 'lucide-react';
+import { ChevronUp, ChevronDown, Clock, CheckCircle2, XCircle, ArrowRight, Smile } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { StatusBadge, type ActivityStatus } from './ui/Badge';
-import { MedalIcon } from './ui/MedalIcon';
+import { LevelMedal } from './ui/LevelMedal';
 import { TrophyBadge } from './ui/TrophyBadge';
 import { trophyColorClass } from '../lib/trophyColors';
 import type { DashboardActivity, DashboardProgram } from '../types/gamification';
@@ -134,7 +134,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ program, otherPrograms, 
                       </span>
                     </span>
                     <span className="flex items-center gap-3 text-gray-800 shrink-0">
-                      <MedalIcon size="sm" earned={week.medalEarned} label={<Award className="w-3.5 h-3.5" />} />
+                      <LevelMedal size="sm" tone="light" earned={week.medalEarned} />
                       <Chevron open={isOpen(week.id)} className="w-4 h-4" />
                     </span>
                   </button>

@@ -17,6 +17,7 @@ interface ActivitySeed {
 
 interface WeekSeed {
   id: string;
+  medalMin: number;
   title: string;
   activities: ActivitySeed[];
   dateLabel: string;
@@ -25,7 +26,8 @@ interface WeekSeed {
 const WEEK_SEEDS: WeekSeed[] = [
   {
     id: 'w1',
-    title: 'Semana 1',
+    medalMin: 3,
+    title: 'Nivel 1',
     dateLabel: '18 de mayo de 2026',
     activities: [
       { dayLabel: 'Día 1', title: 'Amabilidad conmigo mismo', description: KINDNESS_DESCRIPTION },
@@ -37,7 +39,8 @@ const WEEK_SEEDS: WeekSeed[] = [
   },
   {
     id: 'w2',
-    title: 'Semana 2',
+    medalMin: 4,
+    title: 'Nivel 2',
     dateLabel: '25 de mayo de 2026',
     activities: [
       { dayLabel: 'Día 6', title: 'Reconocer una fortaleza propia', description: STRENGTH_DESCRIPTION },
@@ -49,7 +52,8 @@ const WEEK_SEEDS: WeekSeed[] = [
   },
   {
     id: 'w3',
-    title: 'Semana 3',
+    medalMin: 2,
+    title: 'Nivel 3',
     dateLabel: '1 de junio de 2026',
     activities: [
       { dayLabel: 'Día 11', title: 'Reconocer una fortaleza propia', description: STRENGTH_DESCRIPTION },
@@ -61,7 +65,8 @@ const WEEK_SEEDS: WeekSeed[] = [
   },
   {
     id: 'w4',
-    title: 'Semana 4',
+    medalMin: 5,
+    title: 'Nivel 4',
     dateLabel: '8 de junio de 2026',
     activities: [
       { dayLabel: 'Día 16', title: 'Reconocer una fortaleza propia', description: STRENGTH_DESCRIPTION },
@@ -73,7 +78,7 @@ const WEEK_SEEDS: WeekSeed[] = [
   },
 ];
 
-/* Semana 1 arranca con el mismo estado demo que ya existía: día 1 y 3
+/* Nivel 1 arranca con el mismo estado demo que ya existía: día 1 y 3
    completados, día 2 vencido, día 4 pendiente y día 5 como única actividad
    accionable ("de hoy"), igual al texto que ya mostraba Inicio. */
 const WEEK1_SEED_STATUS: Array<Pick<DashboardActivity, 'status' | 'dateLabel' | 'actionable'>> = [
@@ -102,12 +107,13 @@ function buildWeek(seed: WeekSeed, weekIndex: number): DashboardWeek {
     };
   });
 
-  const medalEarned = activities.filter((a) => a.status === 'completada').length >= 3;
+  const medalEarned = activities.filter((a) => a.status === 'completada').length >= seed.medalMin;
 
   return {
     id: seed.id,
     title: seed.title,
     activities,
+    medalMin: seed.medalMin,
     medalEarned,
     medalCelebrated: medalEarned,
   };
@@ -124,7 +130,7 @@ export const CURRENT_PROGRAM: DashboardProgram = {
 
 /* Actividades de relleno para los programas de ejemplo: no son accionables
    (son solo maqueta visual), pero su cantidad de "completada" determina si
-   la semana muestra su medalla ganada o bloqueada, igual que en el programa real. */
+   el nivel muestra su medalla ganada o bloqueada, igual que en el programa real. */
 function mockWeekActivities(weekId: string, doneCount: number): DashboardActivity[] {
   return Array.from({ length: 5 }, (_, i) => ({
     id: `${weekId}-a${i + 1}`,
@@ -139,12 +145,13 @@ function mockWeekActivities(weekId: string, doneCount: number): DashboardActivit
   }));
 }
 
-function mockWeek(id: string, title: string, doneCount: number): DashboardWeek {
-  const medalEarned = doneCount >= 3;
+function mockWeek(id: string, title: string, doneCount: number, medalMin = 3): DashboardWeek {
+  const medalEarned = doneCount >= medalMin;
   return {
     id,
     title,
     activities: mockWeekActivities(id, doneCount),
+    medalMin,
     medalEarned,
     medalCelebrated: medalEarned,
   };
@@ -160,10 +167,10 @@ export const OTHER_PROGRAMS: DashboardProgram[] = [
     title: 'Bienestar en el trabajo',
     skillLearned: 'gestionar mejor el estrés laboral y pedir ayuda cuando la necesitas.',
     weeks: [
-      mockWeek('p2-w1', 'Semana 1', 5),
-      mockWeek('p2-w2', 'Semana 2', 5),
-      mockWeek('p2-w3', 'Semana 3', 5),
-      mockWeek('p2-w4', 'Semana 4', 5),
+      mockWeek('p2-w1', 'Nivel 1', 5),
+      mockWeek('p2-w2', 'Nivel 2', 5),
+      mockWeek('p2-w3', 'Nivel 3', 5),
+      mockWeek('p2-w4', 'Nivel 4', 5),
     ],
     trophyEarned: true,
     trophyCelebrated: true,
@@ -174,10 +181,10 @@ export const OTHER_PROGRAMS: DashboardProgram[] = [
     title: 'Conexión con los demás',
     skillLearned: 'fortalecer tus relaciones cercanas mostrando aprecio genuino.',
     weeks: [
-      mockWeek('p3-w1', 'Semana 1', 5),
-      mockWeek('p3-w2', 'Semana 2', 5),
-      mockWeek('p3-w3', 'Semana 3', 5),
-      mockWeek('p3-w4', 'Semana 4', 5),
+      mockWeek('p3-w1', 'Nivel 1', 5),
+      mockWeek('p3-w2', 'Nivel 2', 5),
+      mockWeek('p3-w3', 'Nivel 3', 5),
+      mockWeek('p3-w4', 'Nivel 4', 5),
     ],
     trophyEarned: true,
     trophyCelebrated: true,
@@ -188,10 +195,10 @@ export const OTHER_PROGRAMS: DashboardProgram[] = [
     title: 'Fortalezas personales',
     skillLearned: 'reconocer y usar tus fortalezas todos los días.',
     weeks: [
-      mockWeek('p4-w1', 'Semana 1', 4),
-      mockWeek('p4-w2', 'Semana 2', 3),
-      mockWeek('p4-w3', 'Semana 3', 1),
-      mockWeek('p4-w4', 'Semana 4', 0),
+      mockWeek('p4-w1', 'Nivel 1', 4, 3),
+      mockWeek('p4-w2', 'Nivel 2', 3, 3),
+      mockWeek('p4-w3', 'Nivel 3', 1, 2),
+      mockWeek('p4-w4', 'Nivel 4', 0, 5),
     ],
     trophyEarned: false,
     trophyCelebrated: false,

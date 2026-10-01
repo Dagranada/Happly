@@ -7,7 +7,10 @@ export interface Activity {
   placeholder?: string;
 }
 
-/* Única actividad de muestra al cierre del cuestionario: al enviarla se
+/* Total mostrado en "Actividad 1 de N"; el cuestionario solo guarda una actividad de muestra. */
+export const ACTIVITIES_SHOWN_TOTAL = 4;
+
+/* Única actividad de muestra al cierre del cuestionario: al continuar se
    completa la actividad real "de hoy" del programa y se muestra el flujo
    de progreso (puntos, racha y medalla) antes de entrar a Inicio. */
 export const ACTIVITIES: Activity[] = [

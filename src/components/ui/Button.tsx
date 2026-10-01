@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Variant = 'primary' | 'secondary' | 'pill' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'pill' | 'ghost' | 'gold';
 type Size = 'lg' | 'md';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,6 +25,8 @@ const VARIANTS: Record<Variant, string> = {
     'text-xs font-medium text-brand bg-brand-100/70 hover:bg-brand-100 px-3.5 py-1.5 shadow-2xs',
   ghost:
     'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+  gold:
+    'bg-warning-500 text-brand-900 shadow-[0_4px_14px_rgba(245,166,35,0.45)] hover:bg-warning-600 active:scale-[0.98]',
 };
 
 export const Button: React.FC<ButtonProps> = ({

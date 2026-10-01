@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from './ui/Card';
 import { LevelMedal } from './ui/LevelMedal';
 import { TrophyBadge } from './ui/TrophyBadge';
-import { trophyColorClass } from '../lib/trophyColors';
+import { trophyColor, trophyPillClass } from '../lib/trophyColors';
 import type { DashboardProgram } from '../types/gamification';
 
 interface AchievementsTabProps {
@@ -53,16 +53,35 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
 
         {trophyHistory.length > 0 ? (
           <ul className="divide-y divide-gray-100" aria-label="Copas ganadas">
-            {trophyHistory.map((p) => (
-              <li key={p.id} className="flex items-center gap-3.5 py-4 first:pt-0 last:pb-0">
-                <TrophyBadge earned size="lg" colorClass={trophyColorClass(allProgramIds, p.id)} />
-                <div className="min-w-0">
-                  <p className="text-[15px] font-bold text-gray-900 leading-snug">{p.title}</p>
-                  <p className="text-[12.5px] text-gray-500 mt-1 leading-relaxed">Aprendiste: {p.skillLearned}</p>
-                  {p.trophyWonOn && <p className="text-[11px] text-gray-400 mt-2">{p.trophyWonOn}</p>}
-                </div>
-              </li>
-            ))}
+            {trophyHistory.map((p) => {
+              const wonMedals = p.weeks.filter((w) => w.medalEarned);
+              return (
+                <li key={p.id} className="flex items-start gap-3.5 py-4 first:pt-3 last:pb-0">
+                  <TrophyBadge earned size="lg" color={trophyColor(allProgramIds, p.id)} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-bold text-gray-900 leading-snug">{p.title}</p>
+                    <p className="text-[12.5px] text-gray-500 mt-1 leading-relaxed">Aprendiste: {p.skillLearned}</p>
+                    {p.trophyWonOn && <p className="text-[11px] text-gray-400 mt-2">{p.trophyWonOn}</p>}
+
+                    {wonMedals.length > 0 && (
+                      <ul className="mt-3 space-y-2" aria-label="Medallas ganadas">
+                        {wonMedals.map((w) => (
+                          <li key={w.id} className="flex items-center gap-3 pt-2">
+                            <LevelMedal earned size="md" tone="light" />
+                            <span className="text-[13px] font-semibold text-gray-800">{w.title}</span>
+                            <span
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${trophyPillClass(allProgramIds, p.id)}`}
+                            >
+                              {w.skillWord}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="text-[13.5px] text-gray-500 leading-relaxed">

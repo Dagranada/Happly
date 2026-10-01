@@ -6,7 +6,7 @@ import { Card } from './ui/Card';
 import { StatusBadge, type ActivityStatus } from './ui/Badge';
 import { LevelMedal } from './ui/LevelMedal';
 import { TrophyBadge } from './ui/TrophyBadge';
-import { trophyColorClass } from '../lib/trophyColors';
+import { trophyColor } from '../lib/trophyColors';
 import type { DashboardActivity, DashboardProgram } from '../types/gamification';
 
 interface ProgramTabProps {
@@ -111,7 +111,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ program, otherPrograms, 
           >
             <span className="text-[17px] font-bold text-gray-900 tracking-tight">{prog.title}</span>
             <span className="flex items-center gap-3 text-gray-800">
-              <TrophyBadge earned={prog.trophyEarned} colorClass={trophyColorClass(programIds, prog.id)} />
+              <TrophyBadge earned={prog.trophyEarned} color={trophyColor(programIds, prog.id)} />
               <Chevron open={isOpen(prog.id)} />
             </span>
           </button>

@@ -22,6 +22,8 @@ export interface DashboardWeek {
   activities: DashboardActivity[];
   /** Actividades que hay que completar para ganar la medalla del nivel (varía entre 2 y 5). */
   medalMin: number;
+  /** Habilidad que se gana en este nivel, en una palabra (pill junto a la medalla en el historial). */
+  skillWord: string;
   medalEarned: boolean;
   /** Evita repetir la pantalla de medalla una vez ya mostrada. */
   medalCelebrated: boolean;
@@ -53,9 +55,7 @@ export interface CompletionResult {
   weeks: CompletionWeekSummary[];
   prevProgress: number;
   newProgress: number;
-  medalNewlyEarned: boolean;
   trophyNewlyEarned: boolean;
-  weekTitle: string;
   programTitle: string;
   skillLearned: string;
 }

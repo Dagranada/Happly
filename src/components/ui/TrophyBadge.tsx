@@ -1,29 +1,95 @@
-import React from 'react';
-import { Trophy } from 'lucide-react';
+import React, { useId } from 'react';
 
-const SIZES: Record<'sm' | 'lg', { wrap: string; icon: string }> = {
-  sm: { wrap: 'w-7 h-7', icon: 'w-4 h-4' },
-  lg: { wrap: 'w-14 h-14', icon: 'w-6 h-6' },
+const SIZES: Record<'sm' | 'lg', string> = {
+  sm: 'w-9 h-9',
+  lg: 'w-14 h-14',
 };
 
 interface TrophyBadgeProps {
   earned: boolean;
   size?: 'sm' | 'lg';
-  /** Color de fondo cuando está ganada (p. ej. `bg-warning-500`), para diferenciar copas de distintos programas. */
-  colorClass?: string;
+  /** Color de la estrella según la estrategia (valor CSS, p. ej. `var(--color-success-500)`). */
+  color?: string;
 }
 
-/** Trofeo de programa: círculo perfecto, con color propio cuando se gana; fondo gris claro e ícono gris (bloqueado) mientras no. */
-export const TrophyBadge: React.FC<TrophyBadgeProps> = ({ earned, size = 'sm', colorClass = 'bg-warning-500' }) => {
-  const s = SIZES[size];
+const GOLD = 'var(--color-warning-500)';
+const tint = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, white)`;
+
+function starPoints(cx: number, cy: number, outer: number, inner: number) {
+  return Array.from({ length: 10 }, (_, i) => {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`;
+  }).join(' ');
+}
+
+const STAR = starPoints(32, 25, 10.5, 4.4);
+
+/**
+ * Copa de programa: copa dorada (reborde, asas en lazo, pie y pedestal) dentro
+ * de un círculo gris claro; la estrella lleva el color de la estrategia.
+ * Bloqueada = círculo punteado gris con la copa en gris, sin candado.
+ */
+export const TrophyBadge: React.FC<TrophyBadgeProps> = ({ earned, size = 'sm', color = 'var(--color-brand)' }) => {
+  const goldId = useId();
+  const baseId = useId();
+  const fill = earned ? `url(#${goldId})` : 'var(--color-gray-200)';
+  const stroke = earned ? tint(GOLD, 45) : 'var(--color-gray-300)';
+  const sw = { stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
+
   return (
     <div
-      className={`${s.wrap} rounded-full flex items-center justify-center shrink-0 ${
-        earned ? `${colorClass} text-white shadow-xs` : 'bg-gray-100 text-gray-400'
+      className={`relative shrink-0 rounded-full flex items-center justify-center ${SIZES[size]} ${
+        earned
+          ? 'bg-gray-100 border-2 border-gray-200 shadow-xs'
+          : 'border-[1.5px] border-dashed border-gray-300 bg-gray-100'
       }`}
-      aria-label={earned ? 'Trofeo obtenido' : 'Trofeo bloqueado'}
+      role="img"
+      aria-label={earned ? 'Copa ganada' : 'Copa bloqueada'}
     >
-      <Trophy className={`${s.icon} stroke-[1.8]`} aria-hidden="true" />
+      <svg viewBox="0 0 64 64" className="w-[70%] h-[70%]" aria-hidden="true">
+        <defs>
+          <linearGradient id={goldId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" style={{ stopColor: tint(GOLD, 40) }} />
+            <stop offset="100%" style={{ stopColor: GOLD }} />
+          </linearGradient>
+          <linearGradient id={baseId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="100%" stopColor="#d9dce1" />
+          </linearGradient>
+        </defs>
+
+        {/* asas en lazo */}
+        <path
+          d="M17 17 H10.5 q-4.5 0 -4.5 4.5 q0 9.5 11 16 M47 17 H53.5 q4.5 0 4.5 4.5 q0 9.5 -11 16"
+          fill="none"
+          stroke={earned ? GOLD : stroke}
+          strokeWidth="3.8"
+          strokeLinecap="round"
+        />
+
+        {/* pedestal */}
+        <rect
+          x="13"
+          y="54"
+          width="38"
+          height="8"
+          rx="4"
+          fill={earned ? `url(#${baseId})` : 'var(--color-gray-200)'}
+          stroke={earned ? '#e5e7eb' : stroke}
+          strokeWidth="1.5"
+        />
+        {/* pie acampanado y plato */}
+        <path d="M28 42 H36 C36 47.5 38.5 49.5 43 51 H21 C25.5 49.5 28 47.5 28 42 Z" fill={fill} {...sw} />
+        <rect x="18" y="50" width="28" height="5" rx="2.5" fill={fill} {...sw} />
+        {/* copa y reborde */}
+        <path d="M16 13 H48 C48 28 42.5 37.5 36 42 H28 C21.5 37.5 16 28 16 13 Z" fill={fill} {...sw} />
+        <rect x="12" y="6" width="40" height="8" rx="4" fill={fill} {...sw} />
+
+        {earned && (
+          <polygon points={STAR} style={{ fill: color }} stroke="rgb(255 255 255 / 0.55)" strokeWidth="0.6" strokeLinejoin="round" />
+        )}
+      </svg>
     </div>
   );
 };

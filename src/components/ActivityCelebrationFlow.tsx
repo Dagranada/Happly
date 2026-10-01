@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, animate } from 'motion/react';
-import { Trophy, ArrowRight, Star, Zap, Flame } from 'lucide-react';
+import { Trophy, ArrowRight, Star, Zap, Flame, Volume2, VolumeX } from 'lucide-react';
 import { Button } from './ui/Button';
 import { LevelMedal } from './ui/LevelMedal';
 import type { CompletionResult } from '../types/gamification';
-
-type Stage = 'summary' | 'medal';
+import * as sfx from '../lib/sfx';
 
 interface ActivityCelebrationFlowProps {
   result: CompletionResult;
@@ -30,39 +29,40 @@ const SPARKLES = [
   { x: 72, y: 98, size: 10, delay: 0.2, gold: true },
 ];
 
-const Screen: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 z-50 bg-form flex flex-col items-center justify-center px-6 py-10 text-center"
-  >
-    {children}
-  </motion.div>
-);
-
 /** Cuenta de `from` a `to` con animación; arranca cuando `enabled` pasa a true. */
 function useCountUp(
   from: number,
   to: number,
-  { enabled = true, delay = 0, duration = 1, onComplete }: {
+  { enabled = true, delay = 0, duration = 1, onComplete, onStep }: {
     enabled?: boolean;
     delay?: number;
     duration?: number;
     onComplete?: () => void;
+    /** Se llama cada vez que cambia el valor entero mostrado. */
+    onStep?: (value: number) => void;
   } = {}
 ) {
   const [value, setValue] = useState(from);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const onStepRef = useRef(onStep);
+  onStepRef.current = onStep;
 
   useEffect(() => {
     if (!enabled) return;
+    let last = Math.round(from);
     const controls = animate(from, to, {
       delay,
       duration,
       ease: [0.22, 1, 0.36, 1],
-      onUpdate: setValue,
+      onUpdate: (v) => {
+        setValue(v);
+        const r = Math.round(v);
+        if (r !== last) {
+          last = r;
+          onStepRef.current?.(r);
+        }
+      },
       onComplete: () => onCompleteRef.current?.(),
     });
     return () => controls.stop();
@@ -81,16 +81,35 @@ const SummaryScreen: React.FC<{
      3 aparece tarjeta de racha · 4 cuentan los días · 5 listo */
   const [phase, setPhase] = useState(0);
   const [filled, setFilled] = useState<Set<string>>(new Set());
+  const [muted, setMutedState] = useState(sfx.isMuted());
   const medalsEarned = result.weeks.filter((w) => w.medalEarned).length;
 
   const progress = useCountUp(0, result.newProgress, {
     delay: 0.15,
     duration: 0.9,
+    onStep: (v) => sfx.tick(v / Math.max(result.newProgress, 1)),
     onComplete: () => {
       if (result.trophyNewlyEarned) setTimeout(() => setShowTrophy(true), 200);
       setPhase(1);
     },
   });
+
+  useEffect(() => {
+    const t1 = setTimeout(() => sfx.fanfare(), 30);
+    const t2 = setTimeout(() => sfx.sweep(0.9), 150);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (phase === 1 || phase === 3 || phase === 5) sfx.pop();
+  }, [phase]);
+
+  useEffect(() => {
+    if (showTrophy) sfx.success();
+  }, [showTrophy]);
 
   useEffect(() => {
     if (phase !== 1 && phase !== 3) return;
@@ -101,11 +120,13 @@ const SummaryScreen: React.FC<{
   const points = useCountUp(0, result.pointsEarned, {
     enabled: phase >= 2,
     duration: 0.6,
+    onStep: (v) => sfx.tick(v / Math.max(result.pointsEarned, 1)),
     onComplete: () => setPhase(3),
   });
   const streak = useCountUp(0, streakCount, {
     enabled: phase >= 4,
     duration: 0.7,
+    onStep: (v) => sfx.tick(v / Math.max(streakCount, 1)),
     onComplete: () => setPhase(5),
   });
 
@@ -118,6 +139,20 @@ const SummaryScreen: React.FC<{
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-celebration text-white overflow-x-hidden overflow-y-auto"
     >
+      <button
+        type="button"
+        aria-label={muted ? 'Activar sonido' : 'Silenciar sonido'}
+        aria-pressed={muted}
+        onClick={() => {
+          const next = !muted;
+          sfx.setMuted(next);
+          setMutedState(next);
+          if (!next) sfx.click();
+        }}
+        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/90 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer focus-ring"
+      >
+        {muted ? <VolumeX className="w-5 h-5" aria-hidden="true" /> : <Volume2 className="w-5 h-5" aria-hidden="true" />}
+      </button>
       <div className="min-h-full max-w-md mx-auto w-full px-6 pt-10 pb-6 flex flex-col justify-between">
         <div className="flex-1 flex flex-col justify-center gap-7 py-4">
           <motion.header
@@ -234,7 +269,10 @@ const SummaryScreen: React.FC<{
                           initial={{ width: 0 }}
                           animate={{ width: `${newFill}%` }}
                           transition={{ duration: 0.9, delay: 0.15 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                          onAnimationComplete={() => setFilled((prev) => new Set(prev).add(week.title))}
+                          onAnimationComplete={() => {
+                            setFilled((prev) => new Set(prev).add(week.title));
+                            if (week.medalEarned) sfx.chime();
+                          }}
                           className="absolute left-0 inset-y-0 rounded-full gold-capsule"
                         />
                       ) : (
@@ -294,7 +332,14 @@ const SummaryScreen: React.FC<{
           transition={{ duration: 0.3, delay: 0.2 }}
           className="relative z-10"
         >
-          <Button variant="gold" className="w-full mt-4" onClick={onContinue}>
+          <Button
+            variant="gold"
+            className="w-full mt-4"
+            onClick={() => {
+              sfx.click();
+              onContinue();
+            }}
+          >
             Continuar
             <ArrowRight className="w-5 h-5 stroke-[2.2]" aria-hidden="true" />
           </Button>
@@ -304,39 +349,7 @@ const SummaryScreen: React.FC<{
   );
 };
 
-const WeeklyMedalCelebrationScreen: React.FC<{ weekTitle: string; onContinue: () => void }> = ({
-  weekTitle,
-  onContinue,
-}) => (
-  <Screen>
-    <div className="pt-3">
-      <LevelMedal earned size="lg" tone="light" />
-    </div>
-    <p className="text-[20px] font-bold text-gray-900 mt-5">¡Ganaste la medalla de nivel!</p>
-    <p className="text-[14px] text-gray-600 mt-1.5 max-w-xs">
-      Completaste las actividades necesarias de "{weekTitle}" para llevarte esta medalla.
-    </p>
-    <Button className="mt-8" onClick={onContinue}>
-      Continuar
-    </Button>
-  </Screen>
+/** Pantalla posterior a una actividad: resumen animado de progreso, niveles (medallas), puntos y racha. */
+export const ActivityCelebrationFlow: React.FC<ActivityCelebrationFlowProps> = ({ result, streakCount, onDone }) => (
+  <SummaryScreen result={result} streakCount={streakCount} onContinue={onDone} />
 );
-
-/** Secuencia tras enviar una actividad: resumen (progreso, niveles, puntos y
- *  racha; se transforma en trofeo si corresponde) → medalla de nivel (solo si
- *  se ganó justo ahora). */
-export const ActivityCelebrationFlow: React.FC<ActivityCelebrationFlowProps> = ({ result, streakCount, onDone }) => {
-  const [stage, setStage] = useState<Stage>('summary');
-
-  if (stage === 'summary') {
-    return (
-      <SummaryScreen
-        result={result}
-        streakCount={streakCount}
-        onContinue={() => (result.medalNewlyEarned ? setStage('medal') : onDone())}
-      />
-    );
-  }
-
-  return <WeeklyMedalCelebrationScreen weekTitle={result.weekTitle} onContinue={onDone} />;
-};

@@ -99,10 +99,7 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
       }
 
       const doneInWeek = week.activities.filter((a) => a.status === 'completada').length;
-      const prevMedal = week.medalEarned;
       week.medalEarned = doneInWeek >= week.medalMin;
-      const medalNewlyEarned = week.medalEarned && !prevMedal && !week.medalCelebrated;
-      if (medalNewlyEarned) week.medalCelebrated = true;
 
       const medalsEarned = next.weeks.filter((w) => w.medalEarned).length;
       const prevTrophy = next.trophyEarned;
@@ -133,9 +130,7 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
         })),
         prevProgress,
         newProgress,
-        medalNewlyEarned,
         trophyNewlyEarned,
-        weekTitle: week.title,
         programTitle: next.title,
         skillLearned: next.skillLearned,
       };

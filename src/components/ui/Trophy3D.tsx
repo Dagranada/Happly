@@ -2,17 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { Trophy } from 'lucide-react';
 
 /* Medidas del modelo (unidades de escena) */
 const RIM_Y = 3.15;
 
 const GOLD = '#FFBA24';
-const GOLD_DEEP = '#EE8A08';
+const GOLD_DEEP = '#F7A21A';
 
 /** Perfil suave (spline por los puntos clave) torneado alrededor del eje Y. */
-function smoothLathe(keys: [number, number][], divisions = 120, segments = 192) {
+function smoothLathe(keys: [number, number][], divisions = 64, segments = 96) {
   const curve = new THREE.SplineCurve(keys.map(([r, y]) => new THREE.Vector2(r, y)));
   return new THREE.LatheGeometry(curve.getPoints(divisions), segments);
 }
@@ -40,12 +39,10 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
   const group = new THREE.Group();
   const disposables: { dispose: () => void }[] = [];
 
-  const body = new THREE.MeshPhysicalMaterial({
+  const body = new THREE.MeshStandardMaterial({
     color: GOLD,
-    roughness: 0.42,
-    metalness: 0.05,
-    clearcoat: 0.35,
-    clearcoatRoughness: 0.3,
+    roughness: 0.36,
+    metalness: 0.08,
     side: THREE.DoubleSide,
   });
   const accent = body.clone();
@@ -89,15 +86,15 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
         [0.7, 0],
         [0, 0],
       ],
-      140
+      64
     )
   );
 
   /* Reborde y collar */
-  const rim = add(new THREE.TorusGeometry(1.1, 0.11, 48, 192));
+  const rim = add(new THREE.TorusGeometry(1.1, 0.11, 24, 128));
   rim.rotation.x = Math.PI / 2;
   rim.position.y = RIM_Y;
-  const collar = add(new THREE.TorusGeometry(0.3, 0.09, 40, 120));
+  const collar = add(new THREE.TorusGeometry(0.3, 0.09, 20, 64));
   collar.rotation.x = Math.PI / 2;
   collar.position.y = 1.04;
 
@@ -115,12 +112,12 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
       false,
       'centripetal'
     );
-    add(new THREE.TubeGeometry(curve, 160, 0.12, 32, false));
+    add(new THREE.TubeGeometry(curve, 96, 0.12, 20, false));
     for (const [x, y] of [
       [1.0, 2.8],
       [0.92, 1.35],
     ]) {
-      const cap = add(new THREE.SphereGeometry(0.12, 32, 24));
+      const cap = add(new THREE.SphereGeometry(0.12, 20, 14));
       cap.position.set(side * x, y, 0);
     }
   };
@@ -135,10 +132,10 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
     bevelEnabled: true,
     bevelThickness: 0.1,
     bevelSize: 0.1,
-    bevelSegments: 12,
-    curveSegments: 14,
+    bevelSegments: 6,
+    curveSegments: 8,
   });
-  starGeo = new TessellateModifier(0.1, 8).modify(starGeo);
+  starGeo = new TessellateModifier(0.14, 6).modify(starGeo);
   const pos = starGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
@@ -161,6 +158,18 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
 
 interface Trophy3DProps {
   className?: string;
+  /**
+   * La copa se construye y se compila apenas se monta (para que no haya tirones
+   * al aparecer) pero no gira ni se dibuja en bucle hasta que `active` es true.
+   */
+  active?: boolean;
+  /** Se llama cuando la copa ya está construida y compilada (listo para mostrarse sin tirones). */
+  onReady?: () => void;
+}
+
+interface Controller {
+  start: () => void;
+  stop: () => void;
 }
 
 /**
@@ -168,8 +177,13 @@ interface Trophy3DProps {
  * va frenando hasta la velocidad de crucero. Si WebGL no está disponible,
  * muestra el ícono de copa plano.
  */
-const Trophy3D: React.FC<Trophy3DProps> = ({ className = '' }) => {
+const Trophy3D: React.FC<Trophy3DProps> = ({ className = '', active = true, onReady }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<Controller | null>(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -181,12 +195,13 @@ const Trophy3D: React.FC<Trophy3DProps> = ({ className = '' }) => {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     } catch {
       setFailed(true);
+      onReadyRef.current?.();
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
-    renderer.toneMappingExposure = 0.95;
+    renderer.toneMappingExposure = 1.0;
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     renderer.domElement.style.display = 'block';
@@ -197,14 +212,14 @@ const Trophy3D: React.FC<Trophy3DProps> = ({ className = '' }) => {
     camera.position.set(0, 3.1, 9.6);
     camera.lookAt(0, 1.65, 0);
 
-    /* Luz de estudio suave (reflejos amplios) + una luz de relleno cálida */
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environment = envTexture;
-    scene.environmentIntensity = 0.5;
-    const key = new THREE.DirectionalLight('#fff1cc', 1.3);
+    /* Luz de estudio: ambiente suave + principal + contraluz cálido (sin mapas de entorno: compila rápido) */
+    scene.add(new THREE.HemisphereLight('#fff6e4', '#d9c9ff', 2.6));
+    const key = new THREE.DirectionalLight('#fff1cc', 2.2);
     key.position.set(3, 5, 6);
     scene.add(key);
+    const rim = new THREE.DirectionalLight('#ffd98a', 1.4);
+    rim.position.set(-5, 3, -4);
+    scene.add(rim);
 
     const { group, dispose } = buildTrophy();
     const pivot = new THREE.Group();
@@ -224,32 +239,53 @@ const Trophy3D: React.FC<Trophy3DProps> = ({ className = '' }) => {
     observer.observe(mount);
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const clock = new THREE.Clock();
     let raf = 0;
-    const tick = () => {
-      const t = clock.getElapsedTime();
+    let t0 = 0;
+    const pose = (t: number) => {
       if (reduceMotion) {
         group.rotation.y = 0.5;
       } else {
         /* velocidad = crucero + impulso inicial que decae (integral de la velocidad) */
-        group.rotation.y = 0.9 * t + (14 / 2.4) * (1 - Math.exp(-2.4 * t));
+        group.rotation.y = 0.9 * t + (9 / 2) * (1 - Math.exp(-2 * t));
         pivot.position.y = Math.sin(t * 1.6) * 0.06;
       }
+    };
+    const tick = (now: number) => {
+      pose((now - t0) / 1000);
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
-    tick();
+    controllerRef.current = {
+      start: () => {
+        cancelAnimationFrame(raf);
+        t0 = performance.now();
+        raf = requestAnimationFrame(tick);
+      },
+      stop: () => cancelAnimationFrame(raf),
+    };
+
+    /* Calentamiento: compila shaders y sube la geometría a la GPU ahora, no al aparecer */
+    pose(0);
+    renderer.compile(scene, camera);
+    renderer.render(scene, camera);
+    if (activeRef.current) controllerRef.current.start();
+    const readyTimer = setTimeout(() => onReadyRef.current?.(), 0);
 
     return () => {
+      controllerRef.current = null;
+      clearTimeout(readyTimer);
       cancelAnimationFrame(raf);
       observer.disconnect();
       dispose();
-      envTexture.dispose();
-      pmrem.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if (active) controllerRef.current?.start();
+    else controllerRef.current?.stop();
+  }, [active]);
 
   if (failed) {
     return (

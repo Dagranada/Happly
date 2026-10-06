@@ -7,7 +7,8 @@ import type { CompletionResult } from '../types/gamification';
 import * as sfx from '../lib/sfx';
 
 /* Three.js solo se descarga cuando se llega a la copa. */
-const Trophy3D = lazy(() => import('./ui/Trophy3D'));
+const loadTrophy3D = () => import('./ui/Trophy3D');
+const Trophy3D = lazy(loadTrophy3D);
 
 interface ActivityCelebrationFlowProps {
   result: CompletionResult;
@@ -84,28 +85,54 @@ const SummaryScreen: React.FC<{
      3 aparece tarjeta de racha · 4 cuentan los días · 5 listo */
   const [phase, setPhase] = useState(0);
   const [filled, setFilled] = useState<Set<string>>(new Set());
-  /* Con copa: porcentaje → niveles → puntos → racha → el 100% se vuelve copa. */
+  /* La atención va de a una cosa: porcentaje → barra del nivel → medalla (si aplica)
+     → puntos → racha → (con copa) el 100% se vuelve copa. */
   const isTrophy = result.trophyNewlyEarned;
-  const [barsStarted, setBarsStarted] = useState(!isTrophy);
+  const [barsStarted, setBarsStarted] = useState(false);
+  /* Con copa, la animación espera a que el modelo 3D esté listo para que no haya tirones a mitad. */
+  const [ready, setReady] = useState(!isTrophy);
+  const [medalsShown, setMedalsShown] = useState<Set<string>>(new Set());
   /* Cada nivel muestra sin animar lo que ya tenía; solo se anima el avance de esta actividad. */
   const fillOf = (done: number, required: number) => Math.min(done / required, 1) * 100;
   const barCount = result.weeks.filter((w) => fillOf(w.done, w.required) > fillOf(w.prevDone ?? w.done, w.required)).length;
+  const isMedalNew = (w: CompletionResult['weeks'][number]) => w.medalEarned && (w.prevDone ?? w.done) < w.required;
+  const medalCount = result.weeks.filter(isMedalNew).length;
+  /* Niveles ya desbloqueados en pantalla (la medalla nueva cuenta cuando aparece). */
+  const unlockedCount = result.weeks.filter((w) => w.medalEarned && (!isMedalNew(w) || medalsShown.has(w.title))).length;
   const [muted, setMutedState] = useState(sfx.isMuted());
-  const medalsEarned = result.weeks.filter((w) => w.medalEarned).length;
 
   const progress = useCountUp(0, result.newProgress, {
+    enabled: ready,
     delay: 0.15,
     duration: 0.9,
     onStep: (v) => sfx.tick(v / Math.max(result.newProgress, 1)),
-    onComplete: () => {
-      if (isTrophy) setBarsStarted(true);
-      else setPhase(1);
-    },
+    onComplete: () => setBarsStarted(true),
   });
 
+  /* Cuando termina de llenarse la barra, la medalla se desbloquea como un momento aparte. */
   useEffect(() => {
-    if (isTrophy && phase === 0 && barsStarted && filled.size >= barCount) setPhase(1);
-  }, [isTrophy, phase, barsStarted, filled, barCount]);
+    const timers = result.weeks
+      .filter((w) => isMedalNew(w) && filled.has(w.title) && !medalsShown.has(w.title))
+      .map((w) =>
+        setTimeout(() => {
+          setMedalsShown((prev) => new Set(prev).add(w.title));
+          sfx.chime();
+        }, 350)
+      );
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filled, medalsShown]);
+
+  /* Recién entonces aparecen los puntos. */
+  useEffect(() => {
+    if (phase !== 0 || !barsStarted || filled.size < barCount || medalsShown.size < medalCount) return;
+    const t = setTimeout(() => setPhase(1), 300);
+    return () => clearTimeout(t);
+  }, [phase, barsStarted, filled, medalsShown, barCount, medalCount]);
+
+  useEffect(() => {
+    if (isTrophy) void loadTrophy3D();
+  }, [isTrophy]);
 
   useEffect(() => {
     if (!isTrophy || phase !== 5) return;
@@ -114,13 +141,14 @@ const SummaryScreen: React.FC<{
   }, [isTrophy, phase]);
 
   useEffect(() => {
+    if (!ready) return;
     const t1 = setTimeout(() => sfx.fanfare(), 30);
     const t2 = setTimeout(() => sfx.sweep(0.9), 150);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, []);
+  }, [ready]);
 
   useEffect(() => {
     if (phase === 1 || phase === 3 || phase === 5) sfx.pop();
@@ -180,14 +208,24 @@ const SummaryScreen: React.FC<{
             transition={{ duration: 0.3 }}
             className="relative z-10 text-center"
           >
-            <h1 className="text-[32px] font-extrabold tracking-tight leading-tight drop-shadow-sm">
-              {isTrophy ? '¡Felicitaciones!' : '¡Estás imparable!'}
-            </h1>
-            <p className="text-white/90 text-[14px] font-medium mt-0.5">
-              {isTrophy
-                ? `Ganaste la copa de ${result.programTitle.charAt(0).toLowerCase()}${result.programTitle.slice(1)}`
-                : `${medalsEarned} de ${result.weeks.length} niveles completados`}
-            </p>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={showTrophy ? 'won' : 'going'}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.22 }}
+              >
+                <h1 className="text-[32px] font-extrabold tracking-tight leading-tight drop-shadow-sm">
+                  {showTrophy ? '¡Felicitaciones!' : '¡Estás imparable!'}
+                </h1>
+                <p className="text-white/90 text-[14px] font-medium mt-0.5">
+                  {showTrophy
+                    ? `Ganaste la copa de ${result.programTitle.charAt(0).toLowerCase()}${result.programTitle.slice(1)}`
+                    : `${unlockedCount} de ${result.weeks.length} niveles completados`}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </motion.header>
 
           <section className="relative flex flex-col items-center justify-center py-2" aria-live="polite">
@@ -213,64 +251,67 @@ const SummaryScreen: React.FC<{
               </motion.span>
             ))}
 
-            {showTrophy && (
-              <div
-                className="absolute left-1/2 top-[113px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                aria-hidden="true"
-              >
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <motion.div
-                    className="sunburst w-[640px] h-[640px] rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-                  />
-                </motion.div>
-              </div>
-            )}
-
             <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', damping: 15, stiffness: 240, delay: 0.05 }}
+              initial={{ scale: 0.85, opacity: 0, height: 130 }}
+              animate={{ scale: 1, opacity: 1, height: showTrophy ? 210 : 130 }}
+              transition={{
+                type: 'spring',
+                damping: 15,
+                stiffness: 240,
+                delay: 0.05,
+                height: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+              }}
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={shown}
               aria-label="Progreso general"
-              className={`relative z-10 w-[280px] flex items-center justify-center ${
-                isTrophy ? 'h-[210px]' : 'h-[130px]'
-              }`}
+              className="relative z-10 w-[280px] flex items-center justify-center"
             >
-              <AnimatePresence mode="wait">
-                {!showTrophy ? (
+              {showTrophy && (
+                <motion.div
+                  className="absolute left-1/2 top-1/2 -ml-[280px] -mt-[280px] pointer-events-none"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  aria-hidden="true"
+                >
+                  <motion.div
+                    className="sunburst w-[560px] h-[560px] rounded-full will-change-transform"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+                  />
+                </motion.div>
+              )}
+              <AnimatePresence>
+                {!showTrophy && (
                   <motion.div
                     key="percent"
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex flex-col items-center leading-none select-none tabular-nums"
+                    transition={{ duration: 0.25 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center leading-none select-none tabular-nums"
                   >
                     <div className="flex items-baseline font-extrabold hero-number">
                       <span className="text-[104px] tracking-tight">{shown}</span>
                       <span className="text-[50px] ml-1">%</span>
                     </div>
                   </motion.div>
-                ) : (
-                  <motion.div
-                    key="trophy"
-                    initial={{ opacity: 0, scale: 0.4 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ type: 'spring', damping: 11, stiffness: 150 }}
-                    className="w-[260px] h-[260px] shrink-0"
-                  >
-                    <Suspense fallback={null}>
-                      <Trophy3D className="w-full h-full" />
-                    </Suspense>
-                  </motion.div>
                 )}
               </AnimatePresence>
+              {isTrophy && (
+                /* La copa se monta (y se compila) desde el inicio, oculta; así no hay tirón al aparecer. */
+                <motion.div
+                  initial={false}
+                  animate={showTrophy ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.4 }}
+                  transition={{ type: 'spring', damping: 11, stiffness: 150, delay: showTrophy ? 0.1 : 0 }}
+                  className="absolute left-1/2 top-1/2 -ml-[130px] -mt-[130px] w-[260px] h-[260px]"
+                  aria-hidden={!showTrophy}
+                >
+                  <Suspense fallback={null}>
+                    <Trophy3D className="w-full h-full" active={showTrophy} onReady={() => setReady(true)} />
+                  </Suspense>
+                </motion.div>
+              )}
             </motion.div>
 
           </section>
@@ -283,12 +324,12 @@ const SummaryScreen: React.FC<{
             aria-label="Progreso por nivel"
           >
             <ol className="grid grid-cols-4 gap-2.5 items-end">
-              {result.weeks.map((week, i) => {
+              {result.weeks.map((week) => {
                 const newFill = fillOf(week.done, week.required);
                 const prevFill = fillOf(week.prevDone ?? week.done, week.required);
                 const animates = newFill > prevFill;
-                const medalNew = week.medalEarned && (week.prevDone ?? week.done) < week.required;
-                const unlocked = week.medalEarned && (!medalNew || filled.has(week.title));
+                const medalNew = isMedalNew(week);
+                const unlocked = week.medalEarned && (!medalNew || medalsShown.has(week.title));
                 return (
                   <li key={week.title} className="flex flex-col items-center">
                     <div className="mb-2">
@@ -303,11 +344,10 @@ const SummaryScreen: React.FC<{
                         <motion.div
                           initial={{ width: `${prevFill}%` }}
                           animate={{ width: `${animates && barsStarted ? newFill : prevFill}%` }}
-                          transition={{ duration: 0.9, delay: 0.15 + (isTrophy ? 0 : i * 0.05), ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                           onAnimationComplete={() => {
                             if (!animates || !barsStarted) return;
                             setFilled((prev) => new Set(prev).add(week.title));
-                            if (medalNew) sfx.chime();
                           }}
                           className="absolute left-0 inset-y-0 rounded-full cream-capsule"
                         />
@@ -405,6 +445,11 @@ function trophyCase(result: CompletionResult): CompletionResult {
 export const ActivityCelebrationFlow: React.FC<ActivityCelebrationFlowProps> = ({ result, streakCount, onDone }) => {
   const [stage, setStage] = useState<0 | 1>(0);
   const showTrophyCase = !result.trophyNewlyEarned;
+
+  /* Mientras se ve la primera pantalla, se descarga la copa 3D para la siguiente. */
+  useEffect(() => {
+    if (showTrophyCase) void loadTrophy3D();
+  }, [showTrophyCase]);
 
   if (stage === 1) {
     return <SummaryScreen key="trophy" result={trophyCase(result)} streakCount={streakCount} onContinue={onDone} />;

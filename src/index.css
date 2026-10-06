@@ -46,6 +46,7 @@
   --color-accent-teal: #48C6B6;    /* punto del gráfico de evolución */
   --color-accent-yellow: #F8EEA6;  /* mancha decorativa de la ilustración */
   --color-accent-sky: #BDE5F8;     /* halo celeste del fondo de formularios */
+  --color-cream: #FFF3BF;          /* cifras y botón de la pantalla de progreso */
 
   /* Superficies */
   --color-surface-form: #F7F8FC;   /* base del fondo de formularios */
@@ -218,41 +219,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* Pantalla de celebración tras completar una actividad (resumen de progreso):
-   fondo morado de marca con acentos dorados, construidos con los tokens. */
+   fondo lavanda de marca con cifras en crema, construidos con los tokens. */
 .bg-celebration {
   background: linear-gradient(
     180deg,
-    var(--color-brand-900) 0%,
-    color-mix(in srgb, var(--color-brand-900) 80%, black) 100%
+    color-mix(in srgb, var(--color-brand) 86%, white) 0%,
+    color-mix(in srgb, var(--color-brand) 94%, white) 100%
   );
 }
 
-/* Resplandor violeta suave detrás del porcentaje */
+/* Luz suave detrás del porcentaje */
 .hero-glow {
   background: radial-gradient(
     closest-side,
-    color-mix(in srgb, var(--color-brand) 62%, transparent) 0%,
-    color-mix(in srgb, var(--color-brand) 34%, transparent) 38%,
-    color-mix(in srgb, var(--color-brand) 12%, transparent) 70%,
+    rgb(255 255 255 / 0.22) 0%,
+    rgb(255 255 255 / 0.1) 45%,
     transparent 100%
   );
 }
 
 .hero-number {
-  background: linear-gradient(180deg, var(--color-warning-200) 0%, var(--color-warning-500) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 5px transparent;
-  filter: drop-shadow(0 2px 0 rgb(52 36 117 / 0.5)) drop-shadow(0 6px 12px rgb(52 36 117 / 0.35));
+  color: var(--color-cream);
 }
 
-.gold-capsule {
-  background: linear-gradient(180deg, var(--color-warning-200) 0%, var(--color-warning-500) 100%);
-  box-shadow:
-    inset 0 1.5px 1px rgb(255 255 255 / 0.8),
-    0 3px 0 var(--color-warning-800),
-    0 5px 6px rgb(52 36 117 / 0.3);
+.cream-capsule {
+  background: var(--color-cream);
 }
 
 .gold-medal {
@@ -263,4 +254,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .dashed-locked {
   border: 1.5px dashed rgb(255 255 255 / 0.65);
   background: rgb(255 255 255 / 0.12);
+}
+
+/* Barra de nivel aún sin completar */
+.track-locked {
+  border: 1.5px dashed rgb(255 255 255 / 0.35);
+  background: rgb(52 36 117 / 0.4);
 }

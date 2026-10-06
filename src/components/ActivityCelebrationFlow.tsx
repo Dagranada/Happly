@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, animate } from 'motion/react';
-import { Trophy, ArrowRight, Star, Zap, Flame, Volume2, VolumeX } from 'lucide-react';
+import { Trophy, ArrowRight, Star, Volume2, VolumeX } from 'lucide-react';
 import { Button } from './ui/Button';
 import { LevelMedal } from './ui/LevelMedal';
 import type { CompletionResult } from '../types/gamification';
@@ -12,9 +12,9 @@ interface ActivityCelebrationFlowProps {
   onDone: () => void;
 }
 
-const METRIC_LABEL = 'text-[12px] font-semibold tracking-widest uppercase text-white/80';
+const METRIC_LABEL = 'text-[12px] font-semibold tracking-widest uppercase text-white/90';
 const METRIC_VALUE =
-  'tabular-nums text-[26px] font-extrabold text-warning-500 leading-none mt-1.5 tracking-tight [text-shadow:0_1px_0_rgb(52_36_117/0.45)]';
+  'tabular-nums text-[26px] font-extrabold text-cream leading-none mt-1.5 tracking-tight';
 
 /* Destellos alrededor del anillo (posición en % del contenedor) */
 const SPARKLES = [
@@ -149,7 +149,7 @@ const SummaryScreen: React.FC<{
           setMutedState(next);
           if (!next) sfx.click();
         }}
-        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/90 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer focus-ring"
+        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-brand-900/40 text-white flex items-center justify-center hover:bg-brand-900/55 transition-colors cursor-pointer focus-ring"
       >
         {muted ? <VolumeX className="w-5 h-5" aria-hidden="true" /> : <Volume2 className="w-5 h-5" aria-hidden="true" />}
       </button>
@@ -164,7 +164,7 @@ const SummaryScreen: React.FC<{
             <h1 className="text-[32px] font-extrabold tracking-tight leading-tight drop-shadow-sm">
               ¡Estás imparable!
             </h1>
-            <p className="text-brand-200 text-[14px] font-medium mt-0.5">
+            <p className="text-white/90 text-[14px] font-medium mt-0.5">
               {medalsEarned} de {result.weeks.length} niveles completados
             </p>
           </motion.header>
@@ -186,7 +186,7 @@ const SummaryScreen: React.FC<{
                 aria-hidden="true"
               >
                 <Star
-                  className={sp.gold ? 'text-warning-200 fill-warning-200' : 'text-white fill-white'}
+                  className={sp.gold ? 'text-cream fill-cream' : 'text-white fill-white'}
                   style={{ width: sp.size, height: sp.size }}
                 />
               </motion.span>
@@ -261,7 +261,7 @@ const SummaryScreen: React.FC<{
                     </div>
                     <div
                       className={`w-full h-3 rounded-full relative flex items-center justify-center ${
-                        unlocked ? '' : 'dashed-locked'
+                        unlocked ? '' : 'track-locked'
                       }`}
                     >
                       {newFill > 0 ? (
@@ -273,14 +273,12 @@ const SummaryScreen: React.FC<{
                             setFilled((prev) => new Set(prev).add(week.title));
                             if (week.medalEarned) sfx.chime();
                           }}
-                          className="absolute left-0 inset-y-0 rounded-full gold-capsule"
+                          className="absolute left-0 inset-y-0 rounded-full cream-capsule"
                         />
-                      ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/80 relative" />
-                      )}
+                      ) : null}
                     </div>
                     <span
-                      className={`font-semibold text-[12.5px] mt-2 ${unlocked ? 'text-warning-500' : 'text-white/80'}`}
+                      className={`font-semibold text-[12.5px] mt-2 ${unlocked ? 'text-cream' : 'text-white/70'}`}
                     >
                       {week.title}
                     </span>
@@ -295,9 +293,8 @@ const SummaryScreen: React.FC<{
               initial={{ scale: 0.3, opacity: 0 }}
               animate={phase >= 1 ? { scale: 1, opacity: 1 } : { scale: 0.3, opacity: 0 }}
               transition={{ type: 'spring', damping: 13, stiffness: 300 }}
-              className="bg-white/10 rounded-2xl py-4 px-3.5 flex flex-col items-center justify-center border border-white/10 backdrop-blur-xs shadow-2xs"
+              className="bg-white/15 rounded-2xl py-4 px-3.5 flex flex-col items-center justify-center border border-white/20"
             >
-              <Zap className="w-5 h-5 text-warning-500 fill-warning-500 mb-1.5" aria-hidden="true" />
               <span className={METRIC_LABEL}>Puntos</span>
               <motion.span
                 animate={{ scale: phase >= 3 ? [1, 1.2, 1] : 1 }}
@@ -311,9 +308,8 @@ const SummaryScreen: React.FC<{
               initial={{ scale: 0.3, opacity: 0 }}
               animate={phase >= 3 ? { scale: 1, opacity: 1 } : { scale: 0.3, opacity: 0 }}
               transition={{ type: 'spring', damping: 13, stiffness: 300 }}
-              className="bg-white/10 rounded-2xl py-4 px-3.5 flex flex-col items-center justify-center border border-white/10 backdrop-blur-xs shadow-2xs"
+              className="bg-white/15 rounded-2xl py-4 px-3.5 flex flex-col items-center justify-center border border-white/20"
             >
-              <Flame className="w-5 h-5 text-warning-500 fill-warning-500 mb-1.5" aria-hidden="true" />
               <span className={METRIC_LABEL}>Racha</span>
               <motion.span
                 animate={{ scale: phase >= 5 ? [1, 1.2, 1] : 1 }}

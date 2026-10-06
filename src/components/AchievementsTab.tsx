@@ -21,9 +21,9 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
     <div className="space-y-4 pt-1">
       {/* Medallas por nivel */}
       <Card className="space-y-4">
-        <h3 className="text-[16px] font-bold text-gray-900">Medallas por nivel</h3>
+        <h3 className="text-[16px] font-bold text-gray-900">Programa actual</h3>
 
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between pt-3">
           {program.weeks.map((week, i) => (
             <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
               <LevelMedal size="lg" tone="light" earned={week.medalEarned} />
@@ -61,23 +61,20 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
                   <div className="min-w-0 flex-1">
                     <p className="text-[15px] font-bold text-gray-900 leading-snug">{p.title}</p>
                     <p className="text-[12.5px] text-gray-500 mt-1 leading-relaxed">Aprendiste: {p.skillLearned}</p>
-                    {p.trophyWonOn && <p className="text-[11px] text-gray-400 mt-2">{p.trophyWonOn}</p>}
-
                     {wonMedals.length > 0 && (
-                      <ul className="mt-3 space-y-2" aria-label="Medallas ganadas">
+                      <ul className="mt-3 flex flex-wrap gap-2" aria-label="Lo que aprendiste">
                         {wonMedals.map((w) => (
-                          <li key={w.id} className="flex items-center gap-3 pt-2">
-                            <LevelMedal earned size="md" tone="light" />
-                            <span className="text-[13px] font-semibold text-gray-800">{w.title}</span>
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${trophyPillClass(allProgramIds, p.id)}`}
-                            >
-                              {w.skillWord}
-                            </span>
+                          <li
+                            key={w.id}
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${trophyPillClass(allProgramIds, p.id)}`}
+                          >
+                            {w.skillWord}
                           </li>
                         ))}
                       </ul>
                     )}
+
+                    {p.trophyWonOn && <p className="text-[11px] text-gray-400 mt-3">{p.trophyWonOn}</p>}
                   </div>
                 </li>
               );

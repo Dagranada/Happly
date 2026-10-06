@@ -26,7 +26,7 @@ const VARIANTS: Record<Variant, string> = {
   ghost:
     'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
   gold:
-    'bg-warning-500 text-brand-900 shadow-[0_4px_14px_rgba(245,166,35,0.45)] hover:bg-warning-600 active:scale-[0.98]',
+    'bg-cream text-brand-900 shadow-[0_4px_14px_rgba(52,36,117,0.25)] hover:brightness-95 active:scale-[0.98]',
 };
 
 export const Button: React.FC<ButtonProps> = ({

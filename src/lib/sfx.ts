@@ -102,17 +102,8 @@ export function sweep(duration: number) {
   tone({ freq: 1568, type: 'sine', start: duration, dur: 0.3, gain: 0.06 });
 }
 
-/**
- * Fanfarria imponente al abrir la pantalla de felicitaciones (estilo Duolingo):
- * golpe grave de impacto, carrerilla ascendente de metales, acorde mayor
- * enorme con eco y platillo, y destellos agudos de cierre.
- */
-export function fanfare() {
-  const c = getCtx();
-  if (!c) return;
-  const t0 = c.currentTime;
-
-  /* bus maestro: compresor + eco corto para dar tamaño */
+/** Bus maestro: compresor + eco corto para dar tamaño a los efectos "grandes". */
+function masterBus(c: AudioContext) {
   const comp = c.createDynamicsCompressor();
   comp.threshold.value = -20;
   comp.ratio.value = 6;
@@ -129,6 +120,20 @@ export function fanfare() {
   bus.connect(delay);
   delay.connect(feedback).connect(delay);
   delay.connect(wet).connect(comp);
+  return bus;
+}
+
+/**
+ * Fanfarria imponente al abrir la pantalla de felicitaciones (estilo Duolingo):
+ * golpe grave de impacto, carrerilla ascendente de metales, acorde mayor
+ * enorme con eco y platillo, y destellos agudos de cierre.
+ */
+export function fanfare() {
+  const c = getCtx();
+  if (!c) return;
+  const t0 = c.currentTime;
+
+  const bus = masterBus(c);
 
   const voice = (freq: number, type: OscillatorType, start: number, dur: number, peak: number, lowpass = 3200) => {
     const s = t0 + start;
@@ -212,11 +217,89 @@ export function chime() {
   [1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone({ freq: f, type: 'triangle', start: i * 0.07, dur: 0.35, gain: 0.07 }));
 }
 
-/** Cierre de la secuencia / trofeo. */
-export function success() {
-  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
-    tone({ freq: f, type: 'triangle', start: i * 0.09, dur: 0.5, gain: 0.07 })
+/**
+ * Revelación de la copa: un "sha" corto (golpe de metales + chasquido de platillo)
+ * y, tras una micro pausa, un "shaaannn" enorme: acorde de metales que se abre
+ * como un telón, platillo que se expande, bombo grave y destellos agudos.
+ */
+export function trophy() {
+  const c = getCtx();
+  if (!c) return;
+  const t0 = c.currentTime;
+  const bus = masterBus(c);
+
+  /* metal con filtro que se abre (el "aaa") y se cierra despacio (el "nnn") */
+  const brass = (freq: number, start: number, dur: number, peak: number, open = 4200) => {
+    const s = t0 + start;
+    const filter = c.createBiquadFilter();
+    const amp = c.createGain();
+    filter.type = 'lowpass';
+    filter.Q.value = 1.2;
+    filter.frequency.setValueAtTime(500, s);
+    filter.frequency.exponentialRampToValueAtTime(open, s + Math.min(0.14, dur * 0.4));
+    filter.frequency.exponentialRampToValueAtTime(900, s + dur);
+    amp.gain.setValueAtTime(0.0001, s);
+    amp.gain.exponentialRampToValueAtTime(peak, s + 0.02);
+    amp.gain.exponentialRampToValueAtTime(peak * 0.7, s + Math.min(0.4, dur * 0.5));
+    amp.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+    filter.connect(amp).connect(bus);
+    [-7, 7].forEach((detune) => {
+      const osc = c.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+      osc.detune.value = detune;
+      osc.connect(filter);
+      osc.start(s);
+      osc.stop(s + dur + 0.05);
+    });
+  };
+
+  const noise = (start: number, dur: number, peak: number, freq: number, attack = 0.005) => {
+    const s = t0 + start;
+    const len = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource();
+    const filter = c.createBiquadFilter();
+    const amp = c.createGain();
+    src.buffer = buf;
+    filter.type = 'highpass';
+    filter.frequency.value = freq;
+    amp.gain.setValueAtTime(0.0001, s);
+    amp.gain.exponentialRampToValueAtTime(peak, s + attack);
+    amp.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+    src.connect(filter).connect(amp).connect(bus);
+    src.start(s);
+  };
+
+  /* "sha": golpe corto y brillante */
+  noise(0, 0.13, 0.16, 4500);
+  brass(392, 0, 0.17, 0.085, 3200);
+  brass(587.33, 0, 0.17, 0.07, 3200);
+
+  /* "shaaannn": entra con todo */
+  const HIT = 0.27;
+  noise(HIT, 1.7, 0.08, 5000, 0.06);
+  [130.81, 261.63, 329.63, 392, 523.25, 659.25, 783.99].forEach((f, i) =>
+    brass(f, HIT, 1.8, i < 2 ? 0.05 : 0.036, i < 2 ? 2600 : 4200)
   );
+
+  /* bombo grave que da el golpe */
+  const boom = c.createOscillator();
+  const boomAmp = c.createGain();
+  boom.type = 'sine';
+  boom.frequency.setValueAtTime(110, t0 + HIT);
+  boom.frequency.exponentialRampToValueAtTime(42, t0 + HIT + 0.45);
+  boomAmp.gain.setValueAtTime(0.0001, t0 + HIT);
+  boomAmp.gain.exponentialRampToValueAtTime(0.3, t0 + HIT + 0.012);
+  boomAmp.gain.exponentialRampToValueAtTime(0.0001, t0 + HIT + 0.6);
+  boom.connect(boomAmp).connect(bus);
+  boom.start(t0 + HIT);
+  boom.stop(t0 + HIT + 0.65);
+
+  /* destellos que caen sobre el acorde */
+  [2093, 2637, 3136, 3951, 4186].forEach((f, i) => tone({ freq: f, type: 'sine', start: HIT + 0.1 + i * 0.09, dur: 0.55, gain: 0.03 }));
 }
 
 export function click() {

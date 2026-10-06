@@ -155,7 +155,7 @@ const SummaryScreen: React.FC<{
   }, [phase]);
 
   useEffect(() => {
-    if (showTrophy) sfx.success();
+    if (showTrophy) sfx.trophy();
   }, [showTrophy]);
 
   useEffect(() => {

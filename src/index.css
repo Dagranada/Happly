@@ -47,6 +47,7 @@
   --color-accent-yellow: #F8EEA6;  /* mancha decorativa de la ilustración */
   --color-accent-sky: #BDE5F8;     /* halo celeste del fondo de formularios */
   --color-cream: #FFF3BF;          /* cifras y botón de la pantalla de progreso */
+  --color-locked: #6D5BBE;         /* fondo de candados y barras bloqueadas (pantalla de progreso) */
 
   /* Superficies */
   --color-surface-form: #F7F8FC;   /* base del fondo de formularios */
@@ -252,12 +253,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .dashed-locked {
-  border: 1.5px dashed rgb(255 255 255 / 0.65);
-  background: rgb(255 255 255 / 0.12);
+  border: 1.5px dashed rgb(255 255 255 / 0.4);
+  background: var(--color-locked);
 }
 
 /* Barra de nivel aún sin completar */
 .track-locked {
-  border: 1.5px dashed rgb(255 255 255 / 0.35);
-  background: rgb(52 36 117 / 0.4);
+  border: 1.5px dashed rgb(255 255 255 / 0.4);
+  background: var(--color-locked);
+}
+
+/* Destello de rayos que gira detrás de la copa */
+.sunburst {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgb(255 255 255 / 0.3) 0deg 9deg,
+    transparent 9deg 24deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, #000 18%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 18%, transparent 100%);
 }

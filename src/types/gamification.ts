@@ -47,6 +47,8 @@ export interface CompletionWeekSummary {
   /** Actividades requeridas para la medalla de este nivel. */
   required: number;
   medalEarned: boolean;
+  /** Actividades hechas antes de la recién completada: ese avance se muestra sin animar. */
+  prevDone?: number;
 }
 
 export interface CompletionResult {

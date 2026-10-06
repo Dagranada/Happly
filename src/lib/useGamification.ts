@@ -122,12 +122,17 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
 
       return {
         pointsEarned: activity.points,
-        weeks: next.weeks.map((w) => ({
-          title: w.title,
-          done: w.activities.filter((a) => a.status === 'completada').length,
-          required: w.medalMin,
-          medalEarned: w.medalEarned,
-        })),
+        weeks: next.weeks.map((w) => {
+          const done = w.activities.filter((a) => a.status === 'completada').length;
+          return {
+            title: w.title,
+            done,
+            /* Solo el nivel de la actividad recién hecha tiene avance nuevo que animar. */
+            prevDone: w.id === week.id ? done - 1 : done,
+            required: w.medalMin,
+            medalEarned: w.medalEarned,
+          };
+        }),
         prevProgress,
         newProgress,
         trophyNewlyEarned,

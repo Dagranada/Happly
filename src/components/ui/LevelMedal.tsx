@@ -82,8 +82,8 @@ export const LevelMedal: React.FC<LevelMedalProps> = ({ earned, size = 'md', ton
           <Star className={`${s.star} text-warning-800 fill-current`} aria-hidden="true" />
         ) : (
           <KeyholeLock
-            className={`${s.lock} ${dark ? 'text-white/90' : 'text-gray-400'}`}
-            cutout={dark ? 'var(--color-brand-900)' : 'var(--color-gray-100)'}
+            className={`${s.lock} ${dark ? 'text-brand-100' : 'text-gray-400'}`}
+            cutout={dark ? 'var(--color-locked)' : 'var(--color-gray-100)'}
           />
         )}
       </motion.div>

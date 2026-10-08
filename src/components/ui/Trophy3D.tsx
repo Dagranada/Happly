@@ -5,10 +5,11 @@ import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModif
 import { Trophy } from 'lucide-react';
 
 /* Medidas del modelo (unidades de escena) */
-const RIM_Y = 3.15;
+const RIM_Y = 3.0;
 
-const GOLD = '#FFBA24';
-const GOLD_DEEP = '#F7A21A';
+/* Amarillo dorado claro, tipo juguete (referencia de diseño) */
+const GOLD = '#FFD650';
+const GOLD_DEEP = '#F5B92A';
 
 /** Perfil suave (spline por los puntos clave) torneado alrededor del eje Y. */
 function smoothLathe(keys: [number, number][], divisions = 64, segments = 96) {
@@ -34,15 +35,15 @@ function roundedStar(outer: number, inner: number) {
   return shape;
 }
 
-/** Copa: cuenco, reborde, asas en lazo, pie y base con perfiles suaves, y estrella en relieve. */
+/** Copa: cuenco ancho, reborde grueso, asas con rizo, pie con collar, base gruesa y estrella en relieve. */
 function buildTrophy(): { group: THREE.Group; dispose: () => void } {
   const group = new THREE.Group();
   const disposables: { dispose: () => void }[] = [];
 
   const body = new THREE.MeshStandardMaterial({
     color: GOLD,
-    roughness: 0.36,
-    metalness: 0.08,
+    roughness: 0.42,
+    metalness: 0,
     side: THREE.DoubleSide,
   });
   const accent = body.clone();
@@ -58,15 +59,15 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
 
   /* Cuenco */
   const bowlKeys: [number, number][] = [
-    [1.1, 3.15],
-    [1.13, 2.95],
-    [1.08, 2.55],
-    [0.93, 2.05],
-    [0.68, 1.6],
-    [0.42, 1.3],
-    [0.25, 1.12],
-    [0.12, 1.06],
-    [0, 1.05],
+    [1.15, 3.0],
+    [1.17, 2.85],
+    [1.12, 2.5],
+    [0.98, 2.1],
+    [0.74, 1.72],
+    [0.45, 1.42],
+    [0.26, 1.28],
+    [0.12, 1.24],
+    [0, 1.23],
   ];
   add(smoothLathe(bowlKeys));
 
@@ -74,16 +75,16 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
   add(
     smoothLathe(
       [
-        [0.2, 1.1],
-        [0.2, 0.95],
-        [0.25, 0.72],
-        [0.4, 0.5],
-        [0.66, 0.38],
-        [0.92, 0.33],
-        [1.02, 0.26],
-        [1.02, 0.12],
-        [0.92, 0.03],
-        [0.7, 0],
+        [0.2, 1.28],
+        [0.2, 1.15],
+        [0.22, 0.9],
+        [0.3, 0.68],
+        [0.5, 0.5],
+        [0.85, 0.42],
+        [1.0, 0.36],
+        [1.04, 0.22],
+        [0.98, 0.08],
+        [0.8, 0],
         [0, 0],
       ],
       64
@@ -91,33 +92,35 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
   );
 
   /* Reborde y collar */
-  const rim = add(new THREE.TorusGeometry(1.1, 0.11, 24, 128));
+  const rim = add(new THREE.TorusGeometry(1.15, 0.13, 24, 128));
   rim.rotation.x = Math.PI / 2;
   rim.position.y = RIM_Y;
-  const collar = add(new THREE.TorusGeometry(0.3, 0.09, 20, 64));
+  const collar = add(new THREE.TorusGeometry(0.28, 0.1, 20, 64));
   collar.rotation.x = Math.PI / 2;
-  collar.position.y = 1.04;
+  collar.position.y = 1.2;
 
-  /* Asas */
+  /* Asas: salen del borde, dan la vuelta y terminan en un pequeño rizo */
+  const handlePoints: [number, number][] = [
+    [1.08, 2.82],
+    [1.5, 2.9],
+    [1.85, 2.62],
+    [1.82, 2.15],
+    [1.5, 1.78],
+    [1.18, 1.62],
+    [1.0, 1.48],
+    [1.03, 1.3],
+    [1.2, 1.28],
+    [1.26, 1.43],
+  ];
   const handle = (side: 1 | -1) => {
     const curve = new THREE.CatmullRomCurve3(
-      [
-        [1.0, 2.8],
-        [1.55, 2.85],
-        [1.95, 2.55],
-        [1.95, 2.0],
-        [1.6, 1.55],
-        [0.92, 1.35],
-      ].map(([x, y]) => new THREE.Vector3(side * x, y, 0)),
+      handlePoints.map(([x, y]) => new THREE.Vector3(side * x, y, 0)),
       false,
       'centripetal'
     );
-    add(new THREE.TubeGeometry(curve, 96, 0.12, 20, false));
-    for (const [x, y] of [
-      [1.0, 2.8],
-      [0.92, 1.35],
-    ]) {
-      const cap = add(new THREE.SphereGeometry(0.12, 20, 14));
+    add(new THREE.TubeGeometry(curve, 128, 0.13, 20, false));
+    for (const [x, y] of [handlePoints[0], handlePoints[handlePoints.length - 1]]) {
+      const cap = add(new THREE.SphereGeometry(0.13, 20, 14));
       cap.position.set(side * x, y, 0);
     }
   };
@@ -125,12 +128,12 @@ function buildTrophy(): { group: THREE.Group; dispose: () => void } {
   handle(-1);
 
   /* Estrella en relieve, teselada y curvada para abrazar el cuenco */
-  const starY = 2.0;
-  const surfaceR = 1.04;
-  let starGeo: THREE.BufferGeometry = new THREE.ExtrudeGeometry(roundedStar(0.8, 0.4), {
+  const starY = 2.35;
+  const surfaceR = 1.06;
+  let starGeo: THREE.BufferGeometry = new THREE.ExtrudeGeometry(roundedStar(0.56, 0.3), {
     depth: 0.04,
     bevelEnabled: true,
-    bevelThickness: 0.1,
+    bevelThickness: 0.16,
     bevelSize: 0.1,
     bevelSegments: 6,
     curveSegments: 8,
@@ -201,7 +204,7 @@ const Trophy3D: React.FC<Trophy3DProps> = ({ className = '', active = true, onRe
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.08;
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     renderer.domElement.style.display = 'block';
@@ -214,7 +217,7 @@ const Trophy3D: React.FC<Trophy3DProps> = ({ className = '', active = true, onRe
 
     /* Luz de estudio: ambiente suave + principal + contraluz cálido (sin mapas de entorno: compila rápido) */
     scene.add(new THREE.HemisphereLight('#fff6e4', '#d9c9ff', 2.6));
-    const key = new THREE.DirectionalLight('#fff1cc', 2.2);
+    const key = new THREE.DirectionalLight('#fff1cc', 2.6);
     key.position.set(3, 5, 6);
     scene.add(key);
     const rim = new THREE.DirectionalLight('#ffd98a', 1.4);

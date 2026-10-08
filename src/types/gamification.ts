@@ -43,6 +43,8 @@ export interface DashboardProgram {
 
 export interface CompletionWeekSummary {
   title: string;
+  /** Habilidad que se gana al completar el nivel (p. ej. "Gratitud"). */
+  skillWord: string;
   done: number;
   /** Actividades requeridas para la medalla de este nivel. */
   required: number;

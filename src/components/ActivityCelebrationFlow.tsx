@@ -7,6 +7,12 @@ import type { CompletionResult } from '../types/gamification';
 import * as sfx from '../lib/sfx';
 
 /* Three.js solo se descarga cuando se llega a la copa. */
+/**
+ * Prueba de diseño: al salir la copa, "Ganaste: [estrategia] + pills" reemplaza la barra de
+ * niveles y medallas. Con `false` vuelve a la versión anterior (el bloque va bajo el título).
+ */
+const WIN_REPLACES_LEVELS = true;
+
 const loadTrophy3D = () => import('./ui/Trophy3D');
 const Trophy3D = lazy(loadTrophy3D);
 
@@ -75,6 +81,26 @@ function useCountUp(
   return value;
 }
 
+const WinBlock: React.FC<{ title: string; skills: string[]; className?: string }> = ({ title, skills, className = '' }) => (
+  <div className={`flex flex-col items-center text-center ${className}`}>
+    <p className="text-white/90 text-[17px] font-semibold">Aprendiste:</p>
+    <p className="text-cream text-[22px] font-extrabold tracking-tight leading-tight mt-0.5">{title}</p>
+    <ul className="mt-3 flex flex-wrap justify-center gap-2" aria-label="Lo que aprendiste">
+      {skills.map((skill, i) => (
+        <motion.li
+          key={skill}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', damping: 14, stiffness: 260, delay: 0.25 + i * 0.08 }}
+          className="inline-flex items-center rounded-full bg-cream/20 border border-cream/35 px-3 py-1 text-[12px] font-semibold text-cream"
+        >
+          {skill}
+        </motion.li>
+      ))}
+    </ul>
+  </div>
+);
+
 const SummaryScreen: React.FC<{
   result: CompletionResult;
   streakCount: number;
@@ -109,24 +135,22 @@ const SummaryScreen: React.FC<{
     onComplete: () => setBarsStarted(true),
   });
 
-  /* Cuando termina de llenarse la barra, la medalla se desbloquea como un momento aparte. */
-  useEffect(() => {
-    const timers = result.weeks
-      .filter((w) => isMedalNew(w) && filled.has(w.title) && !medalsShown.has(w.title))
-      .map((w) =>
-        setTimeout(() => {
-          setMedalsShown((prev) => new Set(prev).add(w.title));
-          sfx.chime();
-        }, 350)
-      );
-    return () => timers.forEach(clearTimeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filled, medalsShown]);
+  /* La barra "llega" cuando está prácticamente llena: la medalla se desbloquea en ese mismo instante. */
+  const reachedRef = useRef<Set<string>>(new Set());
+  const reachLevel = (w: CompletionResult['weeks'][number]) => {
+    if (reachedRef.current.has(w.title)) return;
+    reachedRef.current.add(w.title);
+    setFilled((prev) => new Set(prev).add(w.title));
+    if (isMedalNew(w)) {
+      setMedalsShown((prev) => new Set(prev).add(w.title));
+      sfx.chime();
+    }
+  };
 
   /* Recién entonces aparecen los puntos. */
   useEffect(() => {
     if (phase !== 0 || !barsStarted || filled.size < barCount || medalsShown.size < medalCount) return;
-    const t = setTimeout(() => setPhase(1), 300);
+    const t = setTimeout(() => setPhase(1), 450);
     return () => clearTimeout(t);
   }, [phase, barsStarted, filled, medalsShown, barCount, medalCount]);
 
@@ -219,11 +243,15 @@ const SummaryScreen: React.FC<{
                 <h1 className="text-[32px] font-extrabold tracking-tight leading-tight drop-shadow-sm">
                   {showTrophy ? '¡Felicitaciones!' : '¡Estás imparable!'}
                 </h1>
-                <p className="text-white/90 text-[14px] font-medium mt-0.5">
-                  {showTrophy
-                    ? `Ganaste la copa de ${result.programTitle.charAt(0).toLowerCase()}${result.programTitle.slice(1)}`
-                    : `${unlockedCount} de ${result.weeks.length} niveles completados`}
-                </p>
+                {showTrophy ? (
+                  WIN_REPLACES_LEVELS ? null : (
+                    <WinBlock className="mt-2" title={result.programTitle} skills={result.weeks.map((w) => w.skillWord)} />
+                  )
+                ) : (
+                  <p className="text-white/90 text-[14px] font-medium mt-0.5">
+                    {unlockedCount} de {result.weeks.length} niveles completados
+                  </p>
+                )}
               </motion.div>
             </AnimatePresence>
           </motion.header>
@@ -316,9 +344,24 @@ const SummaryScreen: React.FC<{
 
           </section>
 
+          <AnimatePresence mode="wait">
+          {showTrophy && WIN_REPLACES_LEVELS ? (
+            <motion.section
+              key="win"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative z-10 w-full"
+              aria-label="Lo que aprendiste"
+            >
+              <WinBlock title={result.programTitle} skills={result.weeks.map((w) => w.skillWord)} />
+            </motion.section>
+          ) : (
           <motion.section
+            key="levels"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
             transition={{ duration: 0.3, delay: 0.1 }}
             className="relative z-10 w-full px-1"
             aria-label="Progreso por nivel"
@@ -345,9 +388,12 @@ const SummaryScreen: React.FC<{
                           initial={{ width: `${prevFill}%` }}
                           animate={{ width: `${animates && barsStarted ? newFill : prevFill}%` }}
                           transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                          onAnimationComplete={() => {
+                          onUpdate={(latest) => {
                             if (!animates || !barsStarted) return;
-                            setFilled((prev) => new Set(prev).add(week.title));
+                            if (parseFloat(String(latest.width)) >= newFill - 2) reachLevel(week);
+                          }}
+                          onAnimationComplete={() => {
+                            if (animates && barsStarted) reachLevel(week);
                           }}
                           className="absolute left-0 inset-y-0 rounded-full cream-capsule"
                         />
@@ -363,6 +409,8 @@ const SummaryScreen: React.FC<{
               })}
             </ol>
           </motion.section>
+          )}
+          </AnimatePresence>
 
           <section className="relative z-10 grid grid-cols-2 gap-3" aria-label="Resumen">
             <motion.div

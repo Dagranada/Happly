@@ -10,10 +10,17 @@ interface AchievementsTabProps {
   otherPrograms: DashboardProgram[];
 }
 
+/**
+ * Solo para el ejemplo visual: cuántos niveles del programa actual se muestran como alcanzados en
+ * Logros aunque el estado real no los tenga. Poner en 0 para mostrar únicamente el estado real.
+ */
+const EXAMPLE_LEVELS_REACHED = 1;
+
 export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, otherPrograms }) => {
   const allPrograms = [program, ...otherPrograms];
   const allProgramIds = allPrograms.map((p) => p.id);
-  const medalsEarned = program.weeks.filter((w) => w.medalEarned).length;
+  const levelReached = (earned: boolean, index: number) => earned || index < EXAMPLE_LEVELS_REACHED;
+  const medalsEarned = program.weeks.filter((w, i) => levelReached(w.medalEarned, i)).length;
   const medalsToGo = Math.max(0, 3 - medalsEarned);
   const trophyHistory = allPrograms.filter((p) => p.trophyEarned);
 
@@ -26,8 +33,8 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
         <div className="flex items-start justify-between pt-3">
           {program.weeks.map((week, i) => (
             <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
-              <LevelMedal size="lg" tone="light" earned={week.medalEarned} />
-              <span className={`text-[11px] ${week.medalEarned ? 'text-brand font-medium' : 'text-gray-400'}`}>
+              <LevelMedal size="lg" tone="light" earned={levelReached(week.medalEarned, i)} />
+              <span className={`text-[11px] ${levelReached(week.medalEarned, i) ? 'text-brand font-medium' : 'text-gray-400'}`}>
                 Nivel {i + 1}
               </span>
             </div>

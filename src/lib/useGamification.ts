@@ -126,6 +126,7 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
           const done = w.activities.filter((a) => a.status === 'completada').length;
           return {
             title: w.title,
+            skillWord: w.skillWord,
             done,
             /* Solo el nivel de la actividad recién hecha tiene avance nuevo que animar. */
             prevDone: w.id === week.id ? done - 1 : done,

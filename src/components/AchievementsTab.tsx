@@ -34,7 +34,7 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
           {program.weeks.map((week, i) => (
             <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
               <LevelMedal size="lg" tone="light" earned={levelReached(week.medalEarned, i)} />
-              <span className={`text-[11px] ${levelReached(week.medalEarned, i) ? 'text-brand font-medium' : 'text-gray-400'}`}>
+              <span className={`text-[11px] ${levelReached(week.medalEarned, i) ? 'text-brand font-semibold' : 'text-gray-400'}`}>
                 Nivel {i + 1}
               </span>
             </div>

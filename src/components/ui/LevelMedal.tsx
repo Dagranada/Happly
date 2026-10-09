@@ -1,92 +1,64 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Star } from 'lucide-react';
 
 type Size = 'sm' | 'md' | 'lg';
 type Tone = 'dark' | 'light';
 
-const SIZES: Record<
-  Size,
-  { body: string; star: string; lock: string; tail: string; ghost: string; top: string }
-> = {
-  sm: { body: 'w-7 h-7', star: 'w-3 h-3', lock: 'w-4 h-4', tail: 'w-[4px] h-[9px]', ghost: 'w-[3px] h-[7px]', top: '-top-1.5' },
-  md: { body: 'w-8 h-8', star: 'w-3.5 h-3.5', lock: 'w-[18px] h-[18px]', tail: 'w-[4px] h-[10px]', ghost: 'w-[3px] h-[8px]', top: '-top-1.5' },
-  lg: { body: 'w-14 h-14', star: 'w-6 h-6', lock: 'w-8 h-8', tail: 'w-[7px] h-[17px]', ghost: 'w-[5px] h-[13px]', top: '-top-3' },
+const SIZES: Record<Size, string> = {
+  sm: 'w-7 h-7',
+  md: 'w-8 h-8',
+  lg: 'w-14 h-14',
 };
 
-/** Candado con cerradura visible (ojo de cerradura recortado en el cuerpo). */
-export const KeyholeLock: React.FC<{ className?: string; cutout?: string }> = ({
-  className,
-  cutout = 'var(--color-brand-900)',
-}) => (
+/** Todos los íconos de medallas y copas ocupan la misma proporción de su círculo. */
+export const BADGE_ICON = 'w-1/2 h-1/2';
+
+/** Medalla sólida (iconsax "medal"). */
+const MedalIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+    <path d="M12 15c3.728 0 6.75-2.91 6.75-6.5S15.728 2 12 2 5.25 4.91 5.25 8.5 8.272 15 12 15Z" />
+    <path d="M15.79 15.609c.33-.17.71.08.71.45v4.85c0 .9-.63 1.34-1.41.97l-2.68-1.27c-.23-.1-.59-.1-.82 0l-2.68 1.27c-.78.36-1.41-.08-1.41-.98l.02-4.84c0-.37.39-.61.71-.45 1.13.57 2.41.89 3.77.89 1.36 0 2.65-.32 3.79-.89Z" />
+  </svg>
+);
+
+/** Candado sólido simple. */
+export const LockIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    <rect x="4.5" y="10" width="15" height="11" rx="3" fill="currentColor" />
-    <circle cx="12" cy="14.6" r="1.9" style={{ fill: cutout }} />
-    <rect x="11.1" y="15.4" width="1.8" height="3.2" rx="0.9" style={{ fill: cutout }} />
+    <path d="M7.5 10.5V8a4.5 4.5 0 0 1 9 0v2.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+    <rect x="4.5" y="10" width="15" height="11.5" rx="3" fill="currentColor" />
   </svg>
 );
 
 interface LevelMedalProps {
   earned: boolean;
   size?: Size;
-  /** `dark` para fondos morados oscuros (pantalla de progreso), `light` para tarjetas claras. */
+  /** `dark` para el fondo lavanda de la pantalla de progreso, `light` para tarjetas blancas. */
   tone?: Tone;
   /** Rebote al desbloquearse (solo se anima cuando pasa a true). */
   pulse?: boolean;
 }
 
 /**
- * Medalla de nivel con el estilo de la pantalla de progreso: ganada = medalla
- * dorada con estrella y cinta; por ganar = círculo punteado con candado.
+ * Medalla de nivel: ganada = círculo amarillo con medalla; por ganar = círculo punteado con candado.
  */
 export const LevelMedal: React.FC<LevelMedalProps> = ({ earned, size = 'md', tone = 'light', pulse = false }) => {
-  const s = SIZES[size];
   const dark = tone === 'dark';
 
   return (
-    <div
-      className="relative flex flex-col items-center"
+    <motion.div
       role="img"
       aria-label={earned ? 'Medalla ganada' : 'Medalla bloqueada'}
+      animate={{ scale: pulse ? [1, 1.35, 1] : 1 }}
+      transition={{ duration: 0.35 }}
+      className={`${SIZES[size]} shrink-0 rounded-full flex items-center justify-center ${
+        earned
+          ? 'bg-medal text-warning-800'
+          : dark
+            ? 'dashed-locked text-brand-100'
+            : 'border-[1.5px] border-dashed border-gray-300 bg-gray-50 text-gray-400'
+      }`}
     >
-      <div className={`flex gap-1 absolute ${s.top} z-0 ${earned ? '' : 'opacity-75'}`} aria-hidden="true">
-        {earned ? (
-          <>
-            <span className={`${s.tail} ${dark ? 'bg-white' : 'bg-brand'} rounded-t-sm`} />
-            <span className={`${s.tail} bg-danger-500 rounded-t-sm`} />
-          </>
-        ) : (
-          <>
-            <span
-              className={`${s.ghost} border-t border-l border-r border-dashed ${dark ? 'border-white/60' : 'border-gray-300'}`}
-            />
-            <span
-              className={`${s.ghost} border-t border-l border-r border-dashed ${dark ? 'border-white/60' : 'border-gray-300'}`}
-            />
-          </>
-        )}
-      </div>
-      <motion.div
-        animate={{ scale: pulse ? [1, 1.4, 1] : 1 }}
-        transition={{ duration: 0.35 }}
-        className={`${s.body} rounded-full flex items-center justify-center relative z-10 ${
-          earned
-            ? 'gold-medal shadow-md'
-            : dark
-              ? 'dashed-locked'
-              : 'border-[1.5px] border-dashed border-gray-300 bg-gray-100'
-        }`}
-      >
-        {earned ? (
-          <Star className={`${s.star} text-warning-800 fill-current`} aria-hidden="true" />
-        ) : (
-          <KeyholeLock
-            className={`${s.lock} ${dark ? 'text-brand-100' : 'text-gray-400'}`}
-            cutout={dark ? 'var(--color-locked)' : 'var(--color-gray-100)'}
-          />
-        )}
-      </motion.div>
-    </div>
+      {earned ? <MedalIcon className={BADGE_ICON} /> : <LockIcon className={BADGE_ICON} />}
+    </motion.div>
   );
 };

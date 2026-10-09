@@ -127,6 +127,7 @@ export function useGamification(seedProgram: DashboardProgram = CURRENT_PROGRAM)
           return {
             title: w.title,
             skillWord: w.skillWord,
+            learning: w.learning,
             done,
             /* Solo el nivel de la actividad recién hecha tiene avance nuevo que animar. */
             prevDone: w.id === week.id ? done - 1 : done,

@@ -123,8 +123,14 @@ const SummaryScreen: React.FC<{
   const barCount = result.weeks.filter((w) => fillOf(w.done, w.required) > fillOf(w.prevDone ?? w.done, w.required)).length;
   const isMedalNew = (w: CompletionResult['weeks'][number]) => w.medalEarned && (w.prevDone ?? w.done) < w.required;
   const medalCount = result.weeks.filter(isMedalNew).length;
-  /* Niveles ya desbloqueados en pantalla (la medalla nueva cuenta cuando aparece). */
-  const unlockedCount = result.weeks.filter((w) => w.medalEarned && (!isMedalNew(w) || medalsShown.has(w.title))).length;
+  /* Nivel que se está cursando: el de la actividad recién hecha (o el primero sin medalla). */
+  const currentLevel =
+    result.weeks.find((w) => w.done > (w.prevDone ?? w.done)) ??
+    result.weeks.find((w) => !w.medalEarned) ??
+    result.weeks[result.weeks.length - 1];
+  const learningText = currentLevel?.learning
+    ? `Estás aprendiendo a ${currentLevel.learning}`
+    : `Estás aprendiendo: ${currentLevel?.skillWord ?? ''}`;
   const [muted, setMutedState] = useState(sfx.isMuted());
 
   const progress = useCountUp(0, result.newProgress, {
@@ -249,7 +255,7 @@ const SummaryScreen: React.FC<{
                   )
                 ) : (
                   <p className="text-white/90 text-[14px] font-medium mt-0.5">
-                    {unlockedCount} de {result.weeks.length} niveles completados
+                    {learningText}
                   </p>
                 )}
               </motion.div>

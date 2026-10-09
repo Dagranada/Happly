@@ -19,6 +19,8 @@ interface WeekSeed {
   id: string;
   medalMin: number;
   skillWord: string;
+  /** Qué se aprende en el nivel, para "Estás aprendiendo a …". */
+  learning: string;
   title: string;
   activities: ActivitySeed[];
   dateLabel: string;
@@ -29,6 +31,7 @@ const WEEK_SEEDS: WeekSeed[] = [
     id: 'w1',
     medalMin: 3,
     skillWord: 'Autocompasión',
+    learning: 'ser amable contigo',
     title: 'Nivel 1',
     dateLabel: '18 de mayo de 2026',
     activities: [
@@ -43,6 +46,7 @@ const WEEK_SEEDS: WeekSeed[] = [
     id: 'w2',
     medalMin: 4,
     skillWord: 'Fortalezas',
+    learning: 'reconocer tus fortalezas',
     title: 'Nivel 2',
     dateLabel: '25 de mayo de 2026',
     activities: [
@@ -57,6 +61,7 @@ const WEEK_SEEDS: WeekSeed[] = [
     id: 'w3',
     medalMin: 2,
     skillWord: 'Celebración',
+    learning: 'celebrar tus logros',
     title: 'Nivel 3',
     dateLabel: '1 de junio de 2026',
     activities: [
@@ -71,6 +76,7 @@ const WEEK_SEEDS: WeekSeed[] = [
     id: 'w4',
     medalMin: 5,
     skillWord: 'Gratitud',
+    learning: 'agradecer',
     title: 'Nivel 4',
     dateLabel: '8 de junio de 2026',
     activities: [
@@ -120,6 +126,7 @@ function buildWeek(seed: WeekSeed, weekIndex: number): DashboardWeek {
     activities,
     medalMin: seed.medalMin,
     skillWord: seed.skillWord,
+    learning: seed.learning,
     medalEarned,
     medalCelebrated: medalEarned,
   };

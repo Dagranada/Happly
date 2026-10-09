@@ -24,6 +24,8 @@ export interface DashboardWeek {
   medalMin: number;
   /** Habilidad que se gana en este nivel, en una palabra (pill junto a la medalla en el historial). */
   skillWord: string;
+  /** Qué se aprende en el nivel, para "Estás aprendiendo a …". */
+  learning?: string;
   medalEarned: boolean;
   /** Evita repetir la pantalla de medalla una vez ya mostrada. */
   medalCelebrated: boolean;
@@ -45,6 +47,7 @@ export interface CompletionWeekSummary {
   title: string;
   /** Habilidad que se gana al completar el nivel (p. ej. "Gratitud"). */
   skillWord: string;
+  learning?: string;
   done: number;
   /** Actividades requeridas para la medalla de este nivel. */
   required: number;

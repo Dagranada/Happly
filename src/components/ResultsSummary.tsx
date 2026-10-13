@@ -238,7 +238,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ formData, onRese
           </div>
         </div>
 
-        <div className="pt-2 text-center sm:text-left max-w-xl mx-auto text-[13.5px] sm:text-[14px] leading-relaxed text-gray-700">
+        <div className="pt-2 text-left text-[13.5px] sm:text-[14px] leading-relaxed text-gray-700">
           <ExpandableText
             short={GENERAL_TEXT.short}
             full={GENERAL_TEXT.full}
@@ -257,12 +257,14 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ formData, onRese
             const score = dimensionScores[dim.key];
             return (
               <div key={dim.key}>
-                <Card className="p-4 sm:p-5">
-                  <div className="flex items-start justify-between">
-                    <h4 className="text-[15px] sm:text-[16px] font-medium text-gray-800 leading-tight max-w-[200px]">
+                <Card className="p-4 sm:p-5 h-full">
+                  {/* Título siempre en 2 líneas (todas las tarjetas iguales); el puntaje no se encoge.
+                      En tablet (3 columnas angostas) el puntaje pasa debajo del título. */}
+                  <div className="flex items-start justify-between gap-3 md:max-lg:flex-col md:max-lg:gap-2">
+                    <h4 className="min-w-0 flex-1 text-[15px] sm:text-[16px] font-medium text-gray-800 leading-tight">
                       {dim.title}
                     </h4>
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-end shrink-0 md:max-lg:flex-row md:max-lg:items-center md:max-lg:gap-2">
                       <div className="flex items-baseline">
                         <span className="text-[20px] sm:text-[22px] font-extrabold text-gray-900 leading-none">
                           {score.toFixed(1)}
@@ -271,7 +273,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ formData, onRese
                           /{MAX_SCORE}
                         </span>
                       </div>
-                      <LevelBadge level={getLevel(score)} className="mt-1" />
+                      <LevelBadge level={getLevel(score)} className="mt-1 md:max-lg:mt-0" />
                     </div>
                   </div>
 
@@ -290,7 +292,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({ formData, onRese
           })}
         </div>
 
-        <p className="text-[11.5px] leading-tight text-gray-400 text-center max-w-[280px] mx-auto pt-2">
+        <p className="text-[11.5px] sm:text-[12.5px] leading-snug text-gray-400 text-left pt-2">
           Recuerda que para mejorar tus niveles debes desarrollar un hábito, y para eso está este programa.
         </p>
 

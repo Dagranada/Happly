@@ -48,6 +48,8 @@
   --color-accent-sky: #BDE5F8;     /* halo celeste del fondo de formularios */
   --color-cream: #FFF3BF;          /* cifras y botón de la pantalla de progreso */
   --color-medal: #FCD34D;          /* fondo de la medalla de nivel ganada */
+  --color-silver: #D5D9E0;         /* medalla de plata (ranking) */
+  --color-bronze: #E8A877;         /* medalla de bronce (ranking) */
   --color-locked: #6D5BBE;         /* fondo de candados y barras bloqueadas (pantalla de progreso) */
 
   /* Superficies */

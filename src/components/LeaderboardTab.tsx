@@ -43,7 +43,7 @@ export const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ currentUser }) =
                 <div className="flex items-center gap-3.5">
                   <div className="w-8 flex justify-center items-center shrink-0">
                     {rank <= 3 ? (
-                      <MedalIcon place={rank as 1 | 2 | 3} size="sm" />
+                      <MedalIcon place={rank as 1 | 2 | 3} />
                     ) : (
                       <span className="text-[16px] font-semibold text-gray-800 pl-1">{rank}</span>
                     )}

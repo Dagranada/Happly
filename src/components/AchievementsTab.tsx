@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Card } from './ui/Card';
 import { LevelMedal } from './ui/LevelMedal';
 import { TrophyBadge } from './ui/TrophyBadge';
@@ -15,6 +16,39 @@ interface AchievementsTabProps {
  * Logros aunque el estado real no los tenga. Poner en 0 para mostrar únicamente el estado real.
  */
 const EXAMPLE_LEVELS_REACHED = 1;
+/** Solo para el ejemplo visual: avance (0–1) a mostrar en niveles concretos (índice 1 = nivel 2). Vacío = avance real. */
+const EXAMPLE_LEVEL_PROGRESS: Record<number, number> = { 1: 0.3 };
+
+/**
+ * Anillo de avance del nivel: se llena en amarillo (color de la medalla) según las actividades hechas
+ * sobre las que pide la medalla, igual que la barra de la pantalla de progreso. Arranca arriba y gira
+ * en el sentido del reloj; cubre el borde del círculo sin achicar el ícono.
+ */
+const LevelProgressRing: React.FC<{ progress: number; delay?: number; children: React.ReactNode }> = ({
+  progress,
+  delay = 0,
+  children,
+}) => (
+  <div className="relative w-[62px] h-[62px] flex items-center justify-center">
+    {children}
+    {progress > 0 && (
+      <svg viewBox="0 0 62 62" className="absolute inset-0 -rotate-90 pointer-events-none" aria-hidden="true">
+        <motion.circle
+          cx="31"
+          cy="31"
+          r="28"
+          fill="none"
+          stroke="var(--color-medal)"
+          strokeWidth="6"
+          strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: progress }}
+          transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </svg>
+    )}
+  </div>
+);
 
 export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, otherPrograms }) => {
   const allPrograms = [program, ...otherPrograms];
@@ -31,14 +65,21 @@ export const AchievementsTab: React.FC<AchievementsTabProps> = ({ program, other
         <h3 className="text-[16px] font-bold text-gray-900">Programa actual</h3>
 
         <div className="flex items-start justify-between pt-3">
-          {program.weeks.map((week, i) => (
-            <div key={week.id} className="flex flex-col items-center gap-1.5 text-center">
-              <LevelMedal size="lg" tone="light" earned={levelReached(week.medalEarned, i)} />
-              <span className={`text-[11px] ${levelReached(week.medalEarned, i) ? 'text-brand font-semibold' : 'text-gray-400'}`}>
-                Nivel {i + 1}
-              </span>
-            </div>
-          ))}
+          {program.weeks.map((week, i) => {
+            const reached = levelReached(week.medalEarned, i);
+            const done = week.activities.filter((a) => a.status === 'completada').length;
+            const progress = reached ? 1 : (EXAMPLE_LEVEL_PROGRESS[i] ?? Math.min(done / week.medalMin, 1));
+            return (
+              <div key={week.id} className="flex flex-col items-center gap-1 text-center">
+                <LevelProgressRing progress={progress} delay={0.15 + i * 0.1}>
+                  <LevelMedal size="lg" tone="light" earned={reached} />
+                </LevelProgressRing>
+                <span className={`text-[11px] ${reached ? 'text-brand font-semibold' : 'text-gray-400'}`}>
+                  Nivel {i + 1}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         {!program.trophyEarned && (

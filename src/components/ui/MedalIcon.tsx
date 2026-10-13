@@ -1,37 +1,42 @@
 import React from 'react';
 
-/* Oro / plata / bronce sobre las escalas warning y gray (ver DESIGN.md §3.1) */
-const MEDALS: Record<1 | 2 | 3, string> = {
-  1: 'bg-warning-500',
-  2: 'bg-gray-400',
-  3: 'bg-warning-600',
-};
-
-const SIZES: Record<'sm' | 'lg', { wrap: string; text: string }> = {
-  sm: { wrap: 'w-7 h-7', text: 'text-[13px]' },
-  lg: { wrap: 'w-14 h-14', text: 'text-[24px]' },
+/* Metal plano según el puesto: borde de la moneda (tono más oscuro), cara y color del número. */
+const METALS: Record<1 | 2 | 3, { rim: string; face: string; text: string; label: string }> = {
+  1: { rim: '#F2B92E', face: 'var(--color-medal)', text: 'var(--color-warning-800)', label: 'oro' },
+  2: { rim: '#B8BEC9', face: 'var(--color-silver)', text: 'var(--color-gray-700)', label: 'plata' },
+  3: { rim: '#D18A55', face: 'var(--color-bronze)', text: '#8A4A1C', label: 'bronce' },
 };
 
 interface MedalIconProps {
-  place?: 1 | 2 | 3;
-  size?: 'sm' | 'lg';
-  /** Contenido del círculo; por defecto muestra `place`. */
-  label?: React.ReactNode;
-  /** Cuando es false, se muestra un círculo gris vacío (bloqueado). */
-  earned?: boolean;
+  place: 1 | 2 | 3;
+  className?: string;
 }
 
-/** Medalla: círculo perfecto. Bloqueada = fondo gris claro e ícono gris (invita a completarla). */
-export const MedalIcon: React.FC<MedalIconProps> = ({ place = 1, size = 'sm', label, earned = true }) => {
-  const s = SIZES[size];
+/**
+ * Medalla del ranking (1.º, 2.º y 3.º): cinta corta en V en morado oscuro y claro de la marca y
+ * moneda plana de oro, plata o bronce (borde más oscuro y cara) con el puesto adentro.
+ */
+export const MedalIcon: React.FC<MedalIconProps> = ({ place, className = 'w-8 h-10' }) => {
+  const metal = METALS[place];
   return (
-    <div
-      className={`${s.wrap} ${s.text} rounded-full flex items-center justify-center font-bold shrink-0 ${
-        earned ? `${MEDALS[place]} text-white shadow-xs` : 'bg-gray-100 text-gray-400'
-      }`}
-      aria-label={earned ? `Medalla puesto ${place}` : 'Medalla bloqueada'}
-    >
-      {label ?? place}
-    </div>
+    <svg viewBox="0 0 32 40" className={className} role="img" aria-label={`Medalla de ${metal.label}, puesto ${place}`}>
+      {/* cinta corta en V: morado oscuro y morado claro de la marca */}
+      <path d="M4.5 3h7.5l6 12h-7.5Z" style={{ fill: 'var(--color-brand)' }} />
+      <path d="M27.5 3H20l-6 12h7.5Z" style={{ fill: 'var(--color-brand-200)' }} />
+      {/* moneda: borde y cara (tapa la cinta: solo asoman dos "cachitos" arriba) */}
+      <circle cx="16" cy="25" r="14" style={{ fill: metal.rim }} />
+      <circle cx="16" cy="25" r="11" style={{ fill: metal.face }} />
+      <text
+        x="16"
+        y="25.5"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="15"
+        fontWeight="800"
+        style={{ fill: metal.text }}
+      >
+        {place}
+      </text>
+    </svg>
   );
 };

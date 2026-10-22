@@ -152,6 +152,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   const userName = formData?.userName?.trim() || 'Alejandro Gómez';
+  const fullName = formData?.fullName?.trim() || userName;
 
   const stats = [
     { label: 'Racha', value: <>{gamification.streakCount}</> },
@@ -203,7 +204,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     tabIndex={-1}
                   />
                 </div>
-                <h2 className="text-[17px] font-semibold text-white tracking-tight">{userName}</h2>
+                <h2 className="text-[17px] font-semibold text-white tracking-tight">{fullName}</h2>
               </div>
 
               <div className="space-y-1.5 pt-1">

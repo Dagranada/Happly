@@ -1,5 +1,7 @@
 export interface FormData {
   userName: string;
+  /** Nombre completo, para la tarjeta de perfil del hub */
+  fullName: string;
   // Step 0: Reglas y términos
   acceptedTerms: 'si' | 'no' | '';
 
@@ -38,6 +40,7 @@ export interface ActivityAnswer {
 
 export const INITIAL_FORM_DATA: FormData = {
   userName: 'Daniel',
+  fullName: 'Daniel Cardona',
   acceptedTerms: '',
   gender: '',
   birthDate: '',

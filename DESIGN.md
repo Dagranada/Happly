@@ -19,7 +19,7 @@ Documento de referencia del diseño de la app **Happly – Conozcámonos**: toke
 | Estado | Hook `useGamification` en `App` | Programa, puntos, racha, medallas y copa **en memoria** (sin backend ni persistencia; se reinicia al recargar) |
 | Build | Vite 6, puerto 3000 | |
 
-**Decisión:** los tokens viven en un bloque `@theme` en [src/index.css](src/index.css) (Tailwind v4). Cada color/sombra de este documento existe como utilidad (`bg-brand`, `text-gray-800`, `shadow-cta`, `border-brand/25`…). No hay `[#hex]` arbitrarios en los componentes; los únicos hex en TSX son los que van a JS (gradiente SVG del gauge, colores de la copa 3D, bordes de las medallas del ranking, keyframes de `motion`).
+**Decisión:** los tokens viven en un bloque `@theme` en [src/index.css](src/index.css) (Tailwind v4). Cada color/sombra de este documento existe como utilidad (`bg-brand`, `text-gray-800`, `shadow-cta`, `border-brand/25`…). No hay `[#hex]` arbitrarios en los componentes; los únicos hex en TSX son los que van a JS (gradiente SVG del gauge, colores de la copa 3D, tonos de cinta y número de las medallas del ranking, keyframes de `motion`).
 
 ---
 
@@ -49,9 +49,9 @@ Regla: **una escala por familia**, definida en `@theme` ([src/index.css](src/ind
 |---|---|---|
 | `brand-50` | `#F3F1FF` | Inicio del degradado del body, bloque "intención guardada", hover del botón secundario |
 | `brand-100` | `#EDE9FE` | Opción seleccionada, pills de navegación, track del scrollbar legal, glow ambiental, fondo de icono en modal |
-| `brand-200` | `#D8CDFB` | Blob de la ilustración, borde del botón secundario, botón enviar, cinta clara de las medallas del ranking |
+| `brand-200` | `#D8CDFB` | Blob de la ilustración, borde del botón secundario, botón enviar |
 | `brand-300` | `#C9BFF5` | Hover del botón enviar |
-| `brand` | `#8774E1` | CTA, barra de progreso, radio seleccionado, tab activa, links (incluido el del footer), base del fondo de la pantalla de progreso, cinta oscura de las medallas del ranking, color de copa de una estrategia |
+| `brand` | `#8774E1` | CTA, barra de progreso, radio seleccionado, tab activa, links (incluido el del footer), base del fondo de la pantalla de progreso, color de copa de una estrategia |
 | `brand-600` | `#7864D8` | Hover del CTA y de links, fondo de respaldo del avatar |
 | `brand-900` | `#342475` | Título "Felicidad general" en Inicio, texto del botón crema, color de copa de una estrategia |
 
@@ -99,8 +99,9 @@ Cada familia tiene tres pasos: **100** fondo suave, **500** sólido, **700** tex
 |---|---|---|
 | `cream` | `#FFF3BF` | Cifras de la pantalla de progreso (porcentaje, puntos, racha), barras de nivel llenas, nivel activo, nombre de la estrategia ganada, botón `gold` ("Continuar"), pills de lo aprendido (al 20 %) |
 | `locked` | `#6D5BBE` | Fondo de candados y barras bloqueadas sobre el lavanda de la pantalla de progreso |
-| `medal` | `#FCD34D` | Fondo de la medalla de nivel ganada, anillo de avance de nivel en Logros, cara de la medalla de oro del ranking |
-| `silver` | `#D5D9E0` | Cara de la medalla de plata del ranking (borde `#B8BEC9`) |
+| `medal` | `#FCD34D` | Fondo de la medalla de nivel ganada, anillo de avance de nivel en Logros |
+| `gold` / `silver` / `bronze` | `#FCE58F` / `#D6E4EC` / `#FFC497` | Cara de las medallas del ranking; aro y número van en `Medal` (oro `#FBC808`/`#FA9706`, plata `#AABFD0`/`#96A9B8`, bronce `#E58D4C`/`#ED751D`). Arte original en `assets/medallas/` |
+| (silver) | `#D5D9E0` | Cara de la medalla de plata del ranking (borde `#B8BEC9`) |
 | `bronze` | `#E8A877` | Cara de la medalla de bronce del ranking (borde `#D18A55`, número `#8A4A1C`) |
 
 **Colores por estrategia** ([src/lib/trophyColors.ts](src/lib/trophyColors.ts)): cada programa toma un color por orden — `accent-teal`, `success-500`, `brand`, `danger-500`, `brand-900` — que pinta su copa ganada (copa en el color, círculo en el mismo color al 12 % sobre blanco) y sus pills en Logros (`TROPHY_PILLS`, fondo 10–20 % + texto del mismo tono).
@@ -230,7 +231,8 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 | `MoodPicker` | [ui/MoodPicker.tsx](src/components/ui/MoodPicker.tsx) | Selector de ánimo de 5 caras (`Frown` → `Laugh`) dentro de un `fieldset`; compartido por la actividad del onboarding y la del dashboard. |
 | `LevelMedal` | [ui/LevelMedal.tsx](src/components/ui/LevelMedal.tsx) | Medalla de nivel. `earned`, `size` sm/md/lg (28/32/56 px), `tone` `light` (tarjetas blancas) \| `dark` (pantalla de progreso), `pulse` (rebote al desbloquearse). Ganada: círculo `medal` + ícono medalla (iconsax) en `warning-800`. Por ganar: `light` = círculo `gray-50` con borde punteado `gray-300` y candado `gray-400`; `dark` = `.dashed-locked` con candado `brand-100`. Exporta `LockIcon` y `BADGE_ICON`. |
 | `TrophyBadge` | [ui/TrophyBadge.tsx](src/components/ui/TrophyBadge.tsx) | Copa de programa. `earned`, `size` sm/lg (36/56 px), `color` (color de la estrategia). Ganada: copa sólida en `color` sobre círculo de ese color al 12 %, sin borde. Por ganar: igual que la medalla por ganar (círculo punteado gris + copa gris). |
-| `MedalIcon` | [ui/MedalIcon.tsx](src/components/ui/MedalIcon.tsx) | Medalla del ranking para los puestos 1–3 (`place`). SVG 32×40: dos tiras de cinta inclinadas (`brand` y `brand-200`) que apenas asoman, y moneda plana con borde oscuro + cara clara de oro/plata/bronce y el número en el centro. |
+| `Medal` | [ui/Medal.tsx](src/components/ui/Medal.tsx) | Base de las medallas del ranking. Moneda plana de `gold`/`silver`/`bronze` en tres tonos (aro oscuro, cara clara, contenido en el tono más oscuro) con `ribbon` opcional: cinta corta rematada en V con puntas redondeadas (trazo del mismo color con `strokeLinejoin="round"`). El contenido va como `children` en coordenadas del SVG (centro 16,16). |
+| `MedalIcon` | [ui/MedalIcon.tsx](src/components/ui/MedalIcon.tsx) | Medalla del ranking para los puestos 1–3 (`place`): `Medal` con cinta y el número del puesto. |
 | `Trophy3D` | [ui/Trophy3D.tsx](src/components/ui/Trophy3D.tsx) | Copa dorada 3D (Three.js) que gira. `active` (empieza a girar), `onReady` (avisa cuando ya compiló). Ver §7.1. Export por defecto para `React.lazy`. |
 
 Las clases de referencia de cada primitivo:
@@ -355,7 +357,7 @@ Home ── "Realizar actividad" (Inicio o Programa) ──▶ ActivityDetailScr
 Orden vertical en móvil (en `lg+` el punto 3 vive en un `aside` sticky a la izquierda y del 4 en adelante en la columna derecha):
 
 1. Logo centrado (mismo tamaño que en el resto de pantallas: `h-9 sm:h-11`).
-3. **Tarjeta de perfil morada** (`bg-brand rounded-3xl p-5 sm:p-6`): `Avatar` 40 px con borde `white/60` y botón lápiz para subir una foto (vector predeterminado si no hay), nombre 17 px semibold, "Progreso general N %" (progreso real del programa, ver §6.5) con barra blanca animada, dropdown de notificaciones (Mail/WhatsApp, `bg-white/20 backdrop-blur-xs`), grid 3 stats (`bg-white/20 rounded-2xl border-white/10`): Racha, Puntos, Ánimo. Un círculo `bg-white/10 blur-xl` en la esquina como brillo decorativo.
+3. **Tarjeta de perfil morada** (encabeza el hub con el nombre completo, `fullName`) (`bg-brand rounded-3xl p-5 sm:p-6`): `Avatar` 40 px con borde `white/60` y botón lápiz para subir una foto (vector predeterminado si no hay), nombre 17 px semibold, "Progreso general N %" (progreso real del programa, ver §6.5) con barra blanca animada, dropdown de notificaciones (Mail/WhatsApp, `bg-white/20 backdrop-blur-xs`), grid 3 stats (`bg-white/20 rounded-2xl border-white/10`): Racha, Puntos, Ánimo. Un círculo `bg-white/10 blur-xl` en la esquina como brillo decorativo.
 4. **Tabs** Inicio / Programa / Logros / Ranking (`justify-between` en móvil, `lg:justify-start lg:gap-10` en desktop): `text-[14px] sm:text-[15px]`, activa en morado semibold con subrayado `h-[2.5px]` animado por `layoutId="activeTabIndicator"`.
 5. Contenido de la tab:
    - **Inicio:** tarjeta "Tu actividad de hoy" (icono `ClipboardCheck`, día + título + fecha de la única actividad accionable del programa; "Realizar actividad" abre `ActivityDetailScreen`; al terminar el programa muestra "¡Completaste todas las actividades de este programa! 🎉"); tarjeta "Mi intención para esta semana" (input gris `bg-gray-100` + botón enviar lavanda; al guardar muestra bloque `bg-brand-50 border-brand/20` con la cita en itálica, +10 pts); sección "Mi felicidad actual": `Card` "Felicidad general" (título `brand-900`, badge de nivel + score 30 px en `brand`, barra de progreso `brand` sobre `brand-100` al `score/4`) y debajo tres `Card` en `grid-cols-3 gap-3`, una por dimensión, centradas (nombre, score 24 px, badge); sección "Evolución de mi felicidad" (4 pills de filtro con `flex-wrap` + `HappinessChart`).
@@ -487,8 +489,8 @@ Efectos sintetizados con Web Audio; el botón de sonido silencia todo y se recue
 - Librería: `lucide-react`.
 - Tamaños: 14 px (`w-3.5`) en pills, 16 px (`w-4`) en listas, 20 px (`w-5`) en cabeceras de tarjeta, 24 px (`w-6`) en tarjetas de reglas, 28–40 px en estados vacíos.
 - Stroke: `1.5` para iconos ilustrativos grandes, `1.8` para cabeceras, `2–2.5` para chevrons y checks (más contraste).
-- Iconos propios en SVG: logo Happly, WhatsApp (path oficial), sobre de correo, medalla de nivel (ícono "medal" de iconsax), candado sólido, copa sólida y medalla del ranking.
-- **Medallas y copas:** íconos sólidos (sin contorno) que ocupan siempre la mitad de su círculo (`BADGE_ICON = w-1/2 h-1/2`), en todos los tamaños. Ganado = color; por ganar = círculo `gray-50` con borde punteado `gray-300` e ícono `gray-400`.
+- Iconos propios en SVG: logo Happly, WhatsApp (path oficial), sobre de correo, medalla de nivel (ícono "medal" de iconsax), candado sólido, copa sólida y medalla del ranking (`Medal`).
+- **Medallas y copas:** íconos sólidos (sin contorno) que ocupan siempre la mitad de su círculo (`BADGE_ICON = w-1/2 h-1/2`), en todos los tamaños. Ganado = color; por ganar = círculo `gray-50` con borde punteado `gray-300` e ícono `gray-400`. Las medallas del ranking son aparte: monedas de dos tonos con cinta (`Medal`).
 - Emojis en texto de resultados y toasts (🎉 🌟 🏆 ⭐️).
 
 ---

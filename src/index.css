@@ -61,6 +61,133 @@
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
+/* ------------------------------------------------------------------
+   Alias semánticos (ver DESIGN.md §3.7). Mismos nombres que la
+   colección "Semantic" / "Typography" de Figma. Van fuera de @theme
+   para no generar utilidades nuevas: se usan con la sintaxis de
+   variable de Tailwind v4, p. ej. text-(--text-primary),
+   bg-(--bg-brand), rounded-(--radius-card), text-(length:--type-h1-size).
+   ------------------------------------------------------------------ */
+:root {
+  /* Texto */
+  --text-primary: var(--color-gray-900);
+  --text-body: var(--color-gray-800);
+  --text-secondary: var(--color-gray-700);
+  --text-tertiary: var(--color-gray-600);
+  --text-muted: var(--color-gray-500);
+  --text-disabled: var(--color-gray-400);
+  --text-brand: var(--color-brand);
+  --text-brand-strong: var(--color-brand-900);
+  --text-on-brand: var(--color-white);
+  --text-highlight: var(--color-cream);
+
+  /* Fondos */
+  --bg-page: var(--color-gray-50);
+  --bg-page-tint: var(--color-brand-50);
+  --bg-surface: var(--color-white);
+  --bg-input: var(--color-gray-50);
+  --bg-hover: var(--color-gray-100);
+  --bg-selected: var(--color-brand-100);
+  --bg-disabled: var(--color-gray-200);
+  --bg-brand: var(--color-brand);
+  --bg-brand-hover: var(--color-brand-600);
+  --bg-brand-subtle: var(--color-brand-50);
+  --bg-locked: var(--color-locked);
+  --bg-overlay: color-mix(in srgb, var(--color-black) 40%, transparent);
+
+  /* Bordes */
+  --border-subtle: var(--color-gray-100);
+  --border-default: var(--color-gray-200);
+  --border-dashed: var(--color-gray-300);
+  --border-control: var(--color-gray-400);
+  --border-brand: var(--color-brand-200);
+  --border-focus: color-mix(in srgb, var(--color-brand) 35%, transparent);
+
+  /* Feedback */
+  --feedback-success-bg: var(--color-success-100);
+  --feedback-success-solid: var(--color-success-500);
+  --feedback-success-text: var(--color-success-700);
+  --feedback-warning-bg: var(--color-warning-100);
+  --feedback-warning-border: var(--color-warning-200);
+  --feedback-warning-solid: var(--color-warning-500);
+  --feedback-warning-text: var(--color-warning-700);
+  --feedback-danger-bg: var(--color-danger-100);
+  --feedback-danger-solid: var(--color-danger-500);
+  --feedback-danger-text: var(--color-danger-700);
+
+  /* Colores por estrategia (mismo orden que src/lib/trophyColors.ts) */
+  --strategy-1: var(--color-accent-teal);
+  --strategy-2: var(--color-success-500);
+  --strategy-3: var(--color-brand);
+  --strategy-4: var(--color-danger-500);
+  --strategy-5: var(--color-brand-900);
+
+  /* Radios */
+  --radius-card: var(--radius-3xl);
+  --radius-control: var(--radius-2xl);
+  --radius-pill: calc(infinity * 1px);
+  --radius-checkbox: var(--radius-md);
+
+  /* Espaciado */
+  --space-card-padding: calc(var(--spacing) * 5);
+  --space-stack-questions: calc(var(--spacing) * 7);
+  --space-stack-cards: calc(var(--spacing) * 4);
+  --space-stack-options: calc(var(--spacing) * 3);
+  --space-button-gap: calc(var(--spacing) * 8);
+  --space-page-x: calc(var(--spacing) * 4);
+
+  /* Tipografía — Mobile (< 640px) */
+  --type-progress-percent-size: 104px;
+  --type-score-size: 44px;
+  --type-progress-title-size: 32px;
+  --type-h1-results-size: 26px;
+  --type-h1-size: 22px;
+  --type-stat-size: 28px;
+  --type-card-figure-size: 26px;
+  --type-strategy-size: 22px;
+  --type-h2-intro-size: 20px;
+  --type-h2-size: 18px;
+  --type-card-title-size: 17px;
+  --type-statement-size: 17px;
+  --type-question-size: 16px;
+  --type-input-size: 16px;
+  --type-option-size: 15px;
+  --type-body-size: 14.5px;
+  --type-secondary-size: 13px;
+  --type-button-size: 16px;
+  --type-badge-size: 11px;
+  --type-legal-size: 12px;
+  --type-micro-size: 11px;
+}
+
+/* Tipografía — Tablet (sm, ≥ 640px) */
+@media (min-width: 40rem) {
+  :root {
+    --type-h1-results-size: 30px;
+    --type-h1-size: 26px;
+    --type-h2-intro-size: 23px;
+    --type-h2-size: 19px;
+    --type-statement-size: 19px;
+    --type-question-size: 17px;
+    --type-option-size: 16px;
+    --type-body-size: 15px;
+    --type-secondary-size: 14px;
+    --type-button-size: 18px;
+    --type-badge-size: 12px;
+  }
+}
+
+/* Tipografía — Desktop (md, ≥ 768px) */
+@media (min-width: 48rem) {
+  :root {
+    --type-h1-results-size: 32px;
+    --type-h1-size: 28px;
+    --type-h2-intro-size: 22px;
+    --type-statement-size: 20px;
+    --type-question-size: 18px;
+  }
+}
+
 @layer base {
   body {
     background: linear-gradient(180deg, var(--color-brand-50) 0%, var(--color-gray-50) 100%);

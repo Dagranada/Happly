@@ -184,6 +184,20 @@ Fuente única: **Plus Jakarta Sans**, `antialiased`.
 - Botón secundario: `border-brand-200`.
 - Formularios: **sin borde** (`border-none`).
 
+### 3.7 Alias semánticos y paridad con Figma
+
+En `:root` ([src/index.css](src/index.css)), fuera de `@theme`, hay alias semánticos que apuntan a los tokens de §3.1–3.5. Sus nombres coinciden 1:1 con las colecciones de Figma (el *code syntax* de cada variable muestra el mismo `var(--…)` en Dev Mode):
+
+| Figma | CSS | Ejemplo |
+|---|---|---|
+| Collection **Primitives** (`color/brand/500`, `spacing/5`, `radius/3xl`…) | Tokens de `@theme` (`--color-brand`, `calc(var(--spacing) * 5)`, `--radius-3xl`) | `bg-brand` |
+| Collection **Semantic** (`text/primary`, `bg/brand`, `feedback/success/bg`, `strategy/1`, `radius/card`, `space/card-padding`) | `--text-primary`, `--bg-brand`, `--feedback-success-bg`, `--strategy-1`, `--radius-card`, `--space-card-padding` | `text-(--text-primary)` |
+| Collection **Typography** (modos Mobile / Tablet / Desktop, `type/h1/size`…) | `--type-h1-size`, redefinido en `@media (min-width: 40rem)` y `48rem` | `text-(length:--type-h1-size)` |
+
+Los alias no generan utilidades nuevas (para no duplicar la API de Tailwind); se usan con la sintaxis de variable de Tailwind v4. Los componentes actuales aún usan las clases de primitivos directamente; migrar es opcional y puede hacerse componente a componente.
+
+**Nota:** el H2 de la intro de Fase 2 es en código `20 → 23 → 22 px` (no `20 → 23 → 25` como dice §3.2). Figma refleja el valor del código.
+
 ---
 
 ## 4. CSS global ([src/index.css](src/index.css))
